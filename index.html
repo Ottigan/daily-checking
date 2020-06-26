@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Daily Checking</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap"
+			rel="stylesheet"
+		/>
+		<link id="style" rel="stylesheet" href="css/light.css" />
+		<script src="js/cookies.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<nav>
+				<div id="burger-container">
+					<input type="checkbox" id="menu-checkbox" />
+					<div id="burger-menu">
+						<div class="burger-line"></div>
+						<div class="burger-line"></div>
+						<div class="burger-line"></div>
+					</div>
+					<ul class="nav-list">
+						<li>
+							<a id="dc" href="#" style="text-decoration: underline;"
+								>Daily Checking</a
+							>
+						</li>
+						<li><a id="tracking" href="db.html">Tracking DB</a></li>
+						<li>
+							<a id="new-product" href="new.html">Add New Table/Casino</a>
+						</li>
+					</ul>
+				</div>
+				<div class="navSlash"></div>
+				<form id="login-form" method="POST">
+					<div id="email-div" class="flex vertical">
+						<label for="txt-user">Email</label>
+						<input
+							id="txt-user"
+							name="user"
+							type="email"
+							autocomplete="username"
+						/>
+					</div>
+					<div id="password-div" class="flex vertical">
+						<label for="txt-pass">Password</label>
+						<input
+							id="txt-pass"
+							name="pass"
+							type="password"
+							autocomplete="current-password"
+						/>
+					</div>
+					<button id="login-button" type="submit">Log In</button>
+					<button id="logout-button" type="button">
+						Log Out
+					</button>
+				</form>
+				<svg
+					id="pop-out"
+					style="width: 38px; height: 38px;"
+					viewBox="0 0 24 24"
+				>
+					<path
+						d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"
+					/>
+				</svg>
+				<div class="toggle-container">
+					<input type="checkbox" id="switch" name="theme" />
+					<label for="switch" class="theme-label">
+						<svg
+							id="sun"
+							xmlns="http://www.w3.org/2000/svg"
+							width="19"
+							height="19"
+							viewBox="0 0 24 24"
+						>
+							<path
+								d="M4.069 13h-4.069v-2h4.069c-.041.328-.069.661-.069 1s.028.672.069 1zm3.034-7.312l-2.881-2.881-1.414 1.414 2.881 2.881c.411-.529.885-1.003 1.414-1.414zm11.209 1.414l2.881-2.881-1.414-1.414-2.881 2.881c.528.411 1.002.886 1.414 1.414zm-6.312-3.102c.339 0 .672.028 1 .069v-4.069h-2v4.069c.328-.041.661-.069 1-.069zm0 16c-.339 0-.672-.028-1-.069v4.069h2v-4.069c-.328.041-.661.069-1 .069zm7.931-9c.041.328.069.661.069 1s-.028.672-.069 1h4.069v-2h-4.069zm-3.033 7.312l2.88 2.88 1.415-1.414-2.88-2.88c-.412.528-.886 1.002-1.415 1.414zm-11.21-1.415l-2.88 2.88 1.414 1.414 2.88-2.88c-.528-.411-1.003-.885-1.414-1.414zm2.312-4.897c0 2.206 1.794 4 4 4s4-1.794 4-4-1.794-4-4-4-4 1.794-4 4zm10 0c0 3.314-2.686 6-6 6s-6-2.686-6-6 2.686-6 6-6 6 2.686 6 6z"
+							/>
+						</svg>
+						<svg
+							id="moon"
+							xmlns="http://www.w3.org/2000/svg"
+							width="19"
+							height="19"
+							viewBox="0 0 24 24"
+						>
+							<path
+								d="M0 12c0 6.627 5.373 12 12 12s12-5.373 12-12-5.373-12-12-12-12 5.373-12 12zm2 0c0-5.514 4.486-10 10-10v20c-5.514 0-10-4.486-10-10z"
+							/>
+						</svg>
+						<div class="ball"></div>
+					</label>
+				</div>
+			</nav>
+		</header>
+		<section style="margin-top: 50px;" class="flex jc-c">
+			<div id="checkrows" class="flex vertical jc-c js-c ai-fe">
+				<form id="main-row" action="" method="" class="flex jc-c ai-fe">
+					<div>
+						<label for="table-0">Game Table</label><br />
+						<input
+							id="table-0"
+							type="text"
+							name="table"
+							list="names"
+							class="inputElement table-name"
+							autocomplete="off"
+							pattern="[a-zA-Z0-9 ]+"
+						/>
+						<datalist id="names"> </datalist>
+					</div>
+					<div>
+						<label for="platform-0">Platform</label><br />
+						<input
+							id="platform-0"
+							name="platform"
+							type="text"
+							list="platforms"
+							class="platform-name"
+							autocomplete="off"
+						/>
+						<datalist id="platforms">
+							<option value="Android MHTML5"></option>
+							<option value="Android Native"></option>
+							<option value="Android Wrapper"></option>
+							<option value="iOS MHTML5"></option>
+							<option value="iOS Native"></option>
+							<option value="iOS Wrapper"></option>
+							<option value="MacOS Chrome"></option>
+							<option value="MacOS Download"></option>
+							<option value="MacOS Firefox"></option>
+							<option value="MacOS Safari"></option>
+							<option value="Windows Chrome"></option>
+							<option value="Windows Download"></option>
+							<option value="Windows Firefox"></option>
+						</datalist>
+					</div>
+					<div>
+						<label for="casino-0">Casino</label><br />
+						<input
+							id="casino-0"
+							type="text"
+							name="casino"
+							list="casinos"
+							class="inputElement casino-name"
+							autocomplete="off"
+						/>
+						<datalist id="casinos"> </datalist>
+					</div>
+					<span id="counter-0" class="counter" style="display: none;">0</span>
+					<input
+						id="target-0"
+						type="number"
+						class="target highlight-this"
+						style="display: none;"
+						value="1000"
+						maxlength="4"
+					/>
+					<div style="position: absolute; visibility: hidden;">
+						<div id="hidden-menu" class="flex ai-c jc-sb">
+							<button id="reset-button" type="button">Reset</button>
+							<button id="save-button" type="button">
+								Sort
+							</button>
+							<button id="undo-button" type="button">Undo</button>
+						</div>
+					</div>
+					<button id="menu-toggle" type="button">Options</button>
+					<button id="0" class="submitButton" type="button">
+						Submit
+					</button>
+				</form>
+				<div id="row-manipulator" class="flex">
+					<button>Add</button>
+					<button>Remove</button>
+				</div>
+			</div>
+		</section>
+		<div id="overlay" class="flex jc-c ai-c"></div>
+		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js"></script>
+		<script src="js/dc.js"></script>
+	</body>
+</html>
