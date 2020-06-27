@@ -67,78 +67,58 @@ loginButton.addEventListener('click', function () {
 firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 	if (dailyCheckingUser) {
 		userUID = dailyCheckingUser.uid;
-		let greeting = document.createElement('h6');
-		let qa;
-		switch (userUID) {
-			case 'eckYksePcfdox9I4FLVwTe72bSk1':
-				qa = 'Ottigan';
-				break;
-			case '1BRPSY3Q0yOeI7ReCCrRuVx0Fdo2':
-				qa = 'Unicorn';
-				break;
-			case '2Rvrq1fn5sdCWnpxZbT3lZrUbDm1':
-				qa = 'Martiwka';
-				break;
-			case 'w967NxXDmwUxMMhhKyQizzF5B8S2':
-				qa = 'Boss';
-				break;
-			case 'a6CtpqvK26SqM1sulP86gCL5jYB2':
-				qa = 'Sette e Mezzo';
-				break;
-			case 'Y9MfBHGQ0YdC8k2XHBbQtgRQ6m72':
-				qa = '4chan.org/g/audio_god';
-				break;
-			case 'B1sw8yVyBfTuguw1tKizaHy7AFY2':
-				qa = 'Falcon';
-				break;
-			case 'sBQRKGFdyiXkTgkxOJzEEUfF8m32':
-				qa = 'Mr.Ponytail';
-				break;
-			default:
-				qa = '';
-		}
-		greeting.innerText = `Welcome, ${qa}!`;
-		greeting.style.cssText =
-			'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
-		logoutButton.before(greeting);
 
-		logoutButton.style.display = 'inline';
-		emailDiv.style.display = 'none';
-		passwordDiv.style.display = 'none';
-		loginButton.style.display = 'none';
+		db.collection('dailyChecking')
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				let qa = doc.data().nickname[0];
+				let greeting = document.createElement('h6');
 
-		const getData = function () {
-			db.collection('dailyChecking')
-				.doc('tables')
-				.get()
-				.then(function (doc) {
-					if (doc.exists) {
-						let data = doc.data();
-						data.names.forEach(value => addTableListItem(value));
-					} else {
-						// doc.data() will be undefined in this case
-						console.log('No such document!');
-					}
-				})
-				.catch(function (error) {
-					console.log('Error getting document:', error);
-				});
-			db.collection('dailyChecking')
-				.doc('casinos')
-				.get()
-				.then(function (doc) {
-					if (doc.exists) {
-						let data = doc.data();
-						data.names.forEach(value => addCasinoListItem(value));
-					} else {
-						console.log('No such document!');
-					}
-				})
-				.catch(function (error) {
-					console.log('Error getting document:', error);
-				});
-		};
-		getData();
+				greeting.innerText = `Welcome, ${qa}!`;
+				greeting.style.cssText =
+					'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
+				logoutButton.before(greeting);
+
+				logoutButton.style.display = 'inline';
+				emailDiv.style.display = 'none';
+				passwordDiv.style.display = 'none';
+				loginButton.style.display = 'none';
+			})
+			.catch(function (error) {
+				console.error(error);
+			});
+
+		db.collection('dailyChecking')
+			.doc('tables')
+			.get()
+			.then(function (doc) {
+				if (doc.exists) {
+					let data = doc.data();
+					data.names.forEach(value => addTableListItem(value));
+				} else {
+					// doc.data() will be undefined in this case
+					console.log('No such document!');
+				}
+			})
+			.catch(function (error) {
+				console.log('Error getting document:', error);
+			});
+
+		db.collection('dailyChecking')
+			.doc('casinos')
+			.get()
+			.then(function (doc) {
+				if (doc.exists) {
+					let data = doc.data();
+					data.names.forEach(value => addCasinoListItem(value));
+				} else {
+					console.log('No such document!');
+				}
+			})
+			.catch(function (error) {
+				console.log('Error getting document:', error);
+			});
 	} else {
 		logoutButton.style.display = 'none';
 		emailDiv.style.display = 'flex';

@@ -80,93 +80,70 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 	if (dailyCheckingUser) {
 		//current user valid option: firebase.auth().currentUser.uid
 		userUID = dailyCheckingUser.uid;
-		let greeting = document.createElement('h6');
-		let qa;
-		switch (userUID) {
-			case 'eckYksePcfdox9I4FLVwTe72bSk1':
-				qa = 'Ottigan';
-				break;
-			case '1BRPSY3Q0yOeI7ReCCrRuVx0Fdo2':
-				qa = 'Unicorn';
-				break;
-			case '2Rvrq1fn5sdCWnpxZbT3lZrUbDm1':
-				qa = 'Martiwka';
-				break;
-			case 'w967NxXDmwUxMMhhKyQizzF5B8S2':
-				qa = 'Boss';
-				break;
-			case '6pLL44pT1SaihfvEtT99tNuKDB42':
-				qa = 'Sauļuk';
-				break;
-			case 'a6CtpqvK26SqM1sulP86gCL5jYB2':
-				qa = 'Sette e Mezzo';
-				break;
-			case 'Y9MfBHGQ0YdC8k2XHBbQtgRQ6m72':
-				qa = '4chan.org/g/audio_god';
-				break;
-			case 'B1sw8yVyBfTuguw1tKizaHy7AFY2':
-				qa = 'Falcon';
-				break;
-			case 'sBQRKGFdyiXkTgkxOJzEEUfF8m32':
-				qa = 'Mr.Ponytail';
-				break;
-			default:
-				qa = '';
-		}
-		greeting.innerText = `Welcome, ${qa}!`;
-		greeting.style.cssText =
-			'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
-		logoutButton.before(greeting);
 
-		logoutButton.style.display = 'inline';
-		emailDiv.style.display = 'none';
-		passwordDiv.style.display = 'none';
-		loginButton.style.display = 'none';
+		db.collection('dailyChecking')
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				let qa = doc.data().nickname[0];
+				let greeting = document.createElement('h6');
 
-		const getData = function () {
-			db.collection('dailyChecking')
-				.doc('tables')
-				.get()
-				.then(function (doc) {
-					tablesDB = doc.data().names;
-				})
-				.catch(function (error) {});
+				greeting.innerText = `Welcome, ${qa}!`;
+				greeting.style.cssText =
+					'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
+				logoutButton.before(greeting);
 
-			db.collection('dailyChecking')
-				.doc('casinos')
-				.get()
-				.then(function (doc) {
-					casinosDB = doc.data().names;
-				})
-				.catch(function (error) {});
+				logoutButton.style.display = 'inline';
+				emailDiv.style.display = 'none';
+				passwordDiv.style.display = 'none';
+				loginButton.style.display = 'none';
+			})
+			.catch(function (error) {
+				console.error(error);
+			});
 
-			db.collection('dailyChecking')
-				.doc(userUID)
-				.get()
-				.then(function (doc) {
-					if (doc.exists) {
-						let rows = doc.data().rowcount;
-						let rowObjects = doc.data().rowObjects;
-						let i = 0;
-						do {
-							if (i === 0) {
-								document.querySelector(`#table-${i}`).value =
-									rowObjects[i].name;
-								document.querySelector(`#platform-${i}`).value =
-									rowObjects[i].platform;
-								document.querySelector(`#casino-${i}`).value =
-									rowObjects[i].casino;
-								document.querySelector(`#counter-${i}`).innerHTML =
-									rowObjects[i].counter;
-							} else if (i > 0) {
-								const rowItem = document.createElement('form');
-								rowItem.classList.add('flex', 'jc-c', 'table-row');
-								rowItem.innerHTML = `
+		db.collection('dailyChecking')
+			.doc('tables')
+			.get()
+			.then(function (doc) {
+				tablesDB = doc.data().names;
+			})
+			.catch(function (error) {});
+
+		db.collection('dailyChecking')
+			.doc('casinos')
+			.get()
+			.then(function (doc) {
+				casinosDB = doc.data().names;
+			})
+			.catch(function (error) {});
+
+		db.collection('dailyChecking')
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				if (doc.exists) {
+					let rows = doc.data().rowcount;
+					let rowObjects = doc.data().rowObjects;
+					let i = 0;
+					do {
+						if (i === 0) {
+							document.querySelector(`#table-${i}`).value = rowObjects[i].name;
+							document.querySelector(`#platform-${i}`).value =
+								rowObjects[i].platform;
+							document.querySelector(`#casino-${i}`).value =
+								rowObjects[i].casino;
+							document.querySelector(`#counter-${i}`).innerHTML =
+								rowObjects[i].counter;
+						} else if (i > 0) {
+							const rowItem = document.createElement('form');
+							rowItem.classList.add('flex', 'jc-c', 'table-row');
+							rowItem.innerHTML = `
 								<div id="format-${
 									rowObjects[i].id
 								}" class="row-format" style="background-color: ${
-									rowObjects[i].color
-								}">
+								rowObjects[i].color
+							}">
 								</div>
 								<div>
 									<input type="text" name="table" pattern="[a-zA-Z0-9 ]+" list="names" class="inputElement highlight-this table-name" autocomplete="off" id="table-${
@@ -177,8 +154,8 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 									<input id="platform-${
 										rowObjects[i].id
 									}" class="highlight-this platform-name" value="${
-									rowObjects[i].platform
-								}" name="platform" type="text" list="platforms" autocomplete="off"/>
+								rowObjects[i].platform
+							}" name="platform" type="text" list="platforms" autocomplete="off"/>
 								</div>
 								<div>
 									<input type="text" name="casino" list="casinos" class="inputElement highlight-this casino-name" autocomplete="off" id="casino-${
@@ -186,48 +163,46 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 									}" value="${rowObjects[i].casino.toLowerCase()}"/>
 								</div>
 								<span id="counter-${rowObjects[i].id}" class="counter highlight-this">${
-									rowObjects[i].counter || 0
-								}
+								rowObjects[i].counter || 0
+							}
 								</span>
 								<input id="target-${
 									rowObjects[i].id
 								}" type="number" class="target highlight-this" value="${
-									rowObjects[i].target || 1
-								}" maxlength="2" min="0" max="12" />
+								rowObjects[i].target || 1
+							}" maxlength="2" min="0" max="12" />
 								<button id="${
 									rowObjects[i].id
 								}" class="submitButton highlight-this" type="button">
 									Submit
 								</button>`;
-								rowManip.before(rowItem);
-							}
-							i++;
-						} while (i <= rows);
-						inputElements = document.querySelectorAll('input');
-						tableRows = document.querySelectorAll('.table-row');
+							rowManip.before(rowItem);
+						}
+						i++;
+					} while (i <= rows);
+					inputElements = document.querySelectorAll('input');
+					tableRows = document.querySelectorAll('.table-row');
 
-						let counter = document.querySelectorAll(`.counter`),
-							goal = document.querySelectorAll(`.target`);
+					let counter = document.querySelectorAll(`.counter`),
+						goal = document.querySelectorAll(`.target`);
 
-						for (let i = 0; i < counter.length; i++) {
-							let x = Number.parseInt(counter[i].innerHTML),
-								y = goal[i].value;
+					for (let i = 0; i < counter.length; i++) {
+						let x = Number.parseInt(counter[i].innerHTML),
+							y = goal[i].value;
 
-							if (x >= y) {
-								counter[i].classList.add('valid');
-								counter[i].classList.remove('invalid');
-							} else {
-								counter[i].classList.add('invalid');
-								counter[i].classList.remove('valid');
-							}
+						if (x >= y) {
+							counter[i].classList.add('valid');
+							counter[i].classList.remove('invalid');
+						} else {
+							counter[i].classList.add('invalid');
+							counter[i].classList.remove('valid');
 						}
 					}
-				})
-				.catch(function (error) {
-					console.log('Error getting document:', error);
-				});
-		};
-		getData();
+				}
+			})
+			.catch(function (error) {
+				console.log('Error getting document:', error);
+			});
 	} else {
 		logoutButton.style.display = 'none';
 		emailDiv.style.display = 'flex';
@@ -465,6 +440,7 @@ const updateCounterAndOptions = event => {
 					let rowObjects = doc.data().rowObjects;
 					let rowcount = doc.data().rowcount;
 					let update = rowObjects[target.id];
+					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
 					update.casino = casino;
 					update.name = tableName;
@@ -481,7 +457,7 @@ const updateCounterAndOptions = event => {
 								name: tableName,
 								platform: platform,
 								casino: casino,
-								qa: userUID,
+								qa: persona,
 								when: clientTime,
 							}),
 						})
