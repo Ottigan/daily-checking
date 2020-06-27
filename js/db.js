@@ -210,9 +210,6 @@ trackingSearchBtn.onclick = function () {
 	loadingBar.id = 'loading-bar';
 	loadingBar.innerHTML = '<div id="loading-body"></div>';
 	dbData.append(loadingBar);
-	setTimeout(() => {
-		document.getElementById('loading-bar').remove();
-	}, 2000);
 
 	tableBody.innerHTML = '';
 	csvArray = '';
@@ -223,6 +220,7 @@ trackingSearchBtn.onclick = function () {
 	}
 
 	if (online) {
+		// Timeout added for better visual transition, otherwise the info loads too fast...
 		setTimeout(() => {
 			//fetching data from all user profiles about the check performed
 			db.collection('dailyChecking')
@@ -240,7 +238,11 @@ trackingSearchBtn.onclick = function () {
 							}
 						}
 					});
-					//Sorting in descending order the gathered check objects Oldest => Newest
+
+					// when data is stored we remove the bar
+					document.getElementById('loading-bar').remove();
+
+					//Sorting in descending order the gathered check objects Newest => Oldest
 					dbTracking.sort((a, b) => b.when.seconds - a.when.seconds);
 
 					dbTracking.forEach(object => {
@@ -384,7 +386,7 @@ trackingSearchBtn.onclick = function () {
 				.catch(function (error) {
 					console.log('Error getting documents: ', error);
 				});
-		}, 2000);
+		}, 1200);
 	}
 };
 
