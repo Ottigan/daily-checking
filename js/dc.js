@@ -820,7 +820,7 @@ checkRows.addEventListener('keyup', updateCounterAndOptions);
 checkRows.addEventListener('mouseover', updateCounterAndOptions);
 checkRows.addEventListener('mouseout', updateCounterAndOptions);
 checkRows.addEventListener('change', updateCounterAndOptions);
-//using focusin over focus because the it bubbles through the checkRows,
+//using focusin over focus because it bubbles through the checkRows,
 //thus there is no need to assign multiple elements
 checkRows.addEventListener('focusin', clearInputValues);
 
