@@ -123,7 +123,6 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 			.get()
 			.then(function (doc) {
 				if (doc.exists) {
-					let rows = doc.data().rowcount;
 					let rowObjects = doc.data().rowObjects;
 					let i = 0;
 					do {
@@ -179,7 +178,7 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 							rowManip.before(rowItem);
 						}
 						i++;
-					} while (i <= rows);
+					} while (i <= rowObjects.length - 1);
 					inputElements = document.querySelectorAll('input');
 					tableRows = document.querySelectorAll('.table-row');
 
@@ -250,14 +249,14 @@ const manipRows = event => {
 			.doc(userUID)
 			.get()
 			.then(function (doc) {
-				let data = doc.data().rowcount;
 				let objectArray = doc.data().rowObjects;
-				let deleteObject = objectArray.find(value => value.id === data);
-				if (data > 0) {
+				let deleteObject = objectArray.find(
+					value => value.id === objectArray.length - 1
+				);
+				if (objectArray.length - 1 > 0) {
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
-							rowcount: firebase.firestore.FieldValue.increment(-1),
 							rowObjects: firebase.firestore.FieldValue.arrayRemove(
 								deleteObject
 							),
@@ -274,25 +273,20 @@ const manipRows = event => {
 				}
 			})
 			.catch(function (error) {
-				console.log('Failed retrieving rowcount:', error);
+				console.error('Failed retrieving rowObjects:', error);
 				target.removeAttribute('disabled');
 			});
 	} else if (target.innerHTML === 'Add') {
 		target.setAttribute('disabled', 'disabled');
+
 		db.collection('dailyChecking')
 			.doc(userUID)
-			.update({
-				rowcount: firebase.firestore.FieldValue.increment(1),
-			})
-			.then(function () {
-				db.collection('dailyChecking')
-					.doc(userUID)
-					.get()
-					.then(function (doc) {
-						let id = doc.data().rowcount;
-						const rowItem = document.createElement('form');
-						rowItem.classList.add('flex', 'jc-c', 'table-row');
-						rowItem.innerHTML = `<div id="format-${id}" class="row-format"></div>
+			.get()
+			.then(function (doc) {
+				let id = doc.data().rowObjects.length;
+				const rowItem = document.createElement('form');
+				rowItem.classList.add('flex', 'jc-c', 'table-row');
+				rowItem.innerHTML = `<div id="format-${id}" class="row-format"></div>
 							<div>
 							<input id="table-${id}" class="inputElement highlight-this table-name" type="text" name="table" list="names" autocomplete="off" pattern="[a-zA-Z0-9]+"/>
 							</div>
@@ -307,37 +301,32 @@ const manipRows = event => {
 							<button id="${id}" class="submitButton highlight-this" type="button">
 							Submit
 							</button>`;
-						rowManip.before(rowItem);
-						db.collection('dailyChecking')
-							.doc(userUID)
-							.update({
-								rowObjects: firebase.firestore.FieldValue.arrayUnion({
-									id: id,
-									name: '',
-									platform: '',
-									casino: '',
-									counter: 0,
-									target: 1,
-									color: '',
-								}),
-							})
-							.then(function () {
-								console.log('Row successfully added!');
-								tableRows = document.querySelectorAll('.table-row');
-								target.removeAttribute('disabled');
-							})
-							.catch(function (error) {
-								console.error('Error adding Object row: ', error);
-								target.removeAttribute('disabled');
-							});
+				rowManip.before(rowItem);
+				db.collection('dailyChecking')
+					.doc(userUID)
+					.update({
+						rowObjects: firebase.firestore.FieldValue.arrayUnion({
+							id: id,
+							name: '',
+							platform: '',
+							casino: '',
+							counter: 0,
+							target: 1,
+							color: '',
+						}),
+					})
+					.then(function () {
+						console.log('Row successfully added!');
+						tableRows = document.querySelectorAll('.table-row');
+						target.removeAttribute('disabled');
 					})
 					.catch(function (error) {
-						console.error('Failed retrieving rowcount:', error);
+						console.error('Error adding rowObject: ', error);
 						target.removeAttribute('disabled');
 					});
 			})
 			.catch(function (error) {
-				console.error('Error incrementing rowcount: ', error);
+				console.error('Failed retrieving current rowObjects:', error);
 				target.removeAttribute('disabled');
 			});
 	}
@@ -438,7 +427,6 @@ const updateCounterAndOptions = event => {
 			.then(function (doc) {
 				if (tableName != '' && platform != '' && casino != '') {
 					let rowObjects = doc.data().rowObjects;
-					let rowcount = doc.data().rowcount;
 					let update = rowObjects[target.id];
 					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
@@ -452,7 +440,6 @@ const updateCounterAndOptions = event => {
 						.doc(userUID)
 						.update({
 							rowObjects: rowObjects,
-							rowcount: rowcount,
 							tracking: firebase.firestore.FieldValue.arrayUnion({
 								name: tableName,
 								platform: platform,
@@ -486,7 +473,6 @@ const updateCounterAndOptions = event => {
 						});
 				} else {
 					let rowObjects = doc.data().rowObjects;
-					let rowcount = doc.data().rowcount;
 					let update = rowObjects[target.id];
 					update.casino = casino;
 					update.name = tableName;
@@ -498,7 +484,6 @@ const updateCounterAndOptions = event => {
 						.doc(userUID)
 						.update({
 							rowObjects: rowObjects,
-							rowcount: rowcount,
 						})
 						.then(function () {
 							newToaster('Updated', 'success');
@@ -680,7 +665,6 @@ const updateCounterAndOptions = event => {
 				.get()
 				.then(function (doc) {
 					let rowObjects = doc.data().rowObjects;
-					let rowcount = doc.data().rowcount;
 					let tracking = doc.data().tracking;
 					let lastTracked = tracking.pop();
 
@@ -701,7 +685,6 @@ const updateCounterAndOptions = event => {
 						.doc(userUID)
 						.update({
 							rowObjects: rowObjects,
-							rowcount: rowcount,
 							tracking: tracking,
 						})
 						.then(function () {
