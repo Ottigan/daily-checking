@@ -223,18 +223,18 @@ logoutButton.addEventListener('click', function () {
 });
 
 function newToaster(text, type) {
-	let SpanToaster = document.createElement('span');
-	SpanToaster.innerHTML = text;
+	let toasterMessage = document.createElement('span');
+	toasterMessage.innerHTML = text;
 	if (type === 'success') {
-		SpanToaster.classList = 'successSubmitToaster';
+		toasterMessage.classList = 'successSubmitToaster';
 	} else if (type === 'fail') {
-		SpanToaster.classList = 'failSubmitToaster';
+		toasterMessage.classList = 'failSubmitToaster';
 	}
 
-	header.append(SpanToaster);
+	header.append(toasterMessage);
 
 	setTimeout(function () {
-		SpanToaster.remove();
+		toasterMessage.remove();
 	}, 3000);
 }
 
@@ -292,19 +292,19 @@ const manipRows = event => {
 						let id = doc.data().rowcount;
 						const rowItem = document.createElement('form');
 						rowItem.classList.add('flex', 'jc-c', 'table-row');
-						rowItem.innerHTML = `<div id="format-${id}" class="row-format" style="background-color: rgb(255, 255, 255);"></div>
+						rowItem.innerHTML = `<div id="format-${id}" class="row-format"></div>
 							<div>
-							<input type="text" name="table" list="names" class="inputElement" autocomplete="off" pattern="[a-zA-Z0-9]+" id="table-${id}" />
+							<input id="table-${id}" class="inputElement highlight-this table-name" type="text" name="table" list="names" autocomplete="off" pattern="[a-zA-Z0-9]+"/>
 							</div>
 							<div>
-							<input id="platform-${id}" name="platform" type="text" list="platforms" autocomplete="off"/>
+							<input id="platform-${id}" class="highlight-this platform-name" name="platform" type="text" list="platforms" autocomplete="off"/>
 							</div>
 							<div>
-							<input type="text" name="casino" id="casino-${id}" list="casinos" class="inputElement" autocomplete="off"/>
+							<input id="casino-${id}" class="inputElement highlight-this casino-name" type="text" name="casino"  list="casinos" autocomplete="off"/>
 							</div>
 							<span id="counter-${id}" class="counter highlight-this invalid">0</span>
-							<input id="target-${id}" type="number" class="target highlight-this" value="1" maxlength="2" min="0" max="12" />
-							<button id="${id}" class="submitButton" type="button">
+							<input id="target-${id}" class="target highlight-this" type="number" value="1" maxlength="2" min="0" max="12" />
+							<button id="${id}" class="submitButton highlight-this" type="button">
 							Submit
 							</button>`;
 						rowManip.before(rowItem);
@@ -318,7 +318,7 @@ const manipRows = event => {
 									casino: '',
 									counter: 0,
 									target: 1,
-									color: 'rgb(17, 143, 160)',
+									color: '',
 								}),
 							})
 							.then(function () {
@@ -462,7 +462,6 @@ const updateCounterAndOptions = event => {
 							}),
 						})
 						.then(function () {
-							console.log('Tracking DB updated');
 							let x = counter.innerHTML,
 								y = goal.value;
 							x++;
@@ -475,10 +474,14 @@ const updateCounterAndOptions = event => {
 								counter.classList.add('invalid');
 								counter.classList.remove('valid');
 							}
-							target.blur();
 							newToaster('Added', 'success');
+							target.blur();
+							target.removeAttribute('disabled');
 						})
 						.catch(function (error) {
+							newToaster('Error', 'fail');
+							target.blur();
+							target.removeAttribute('disabled');
 							console.error(error);
 						});
 				} else {
@@ -498,20 +501,24 @@ const updateCounterAndOptions = event => {
 							rowcount: rowcount,
 						})
 						.then(function () {
-							console.log('Row updated');
-							newToaster('Error', 'fail');
+							newToaster('Updated', 'success');
+							target.blur();
+							target.removeAttribute('disabled');
 						})
 						.catch(function (error) {
+							newToaster('Error', 'fail');
+							target.blur();
+							target.removeAttribute('disabled');
 							console.error(error);
 						});
 				}
 			})
 			.catch(error => {
+				newToaster('Error', 'fail');
+				target.blur();
+				target.removeAttribute('disabled');
 				console.error(error);
-				newToaster('Failed', 'fail');
 			});
-
-		target.removeAttribute('disabled');
 	} else if (target.id === 'save-button' && event.type === 'click') {
 		let newTableRowOrder = [];
 
@@ -689,7 +696,7 @@ const updateCounterAndOptions = event => {
 							break;
 						}
 						i++;
-					} while (i < rowObjects.length - 1);
+					} while (i < rowObjects.length);
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
@@ -731,16 +738,16 @@ const updateCounterAndOptions = event => {
 									break;
 								}
 								i++;
-							} while (i < allGameTables.length - 1);
+							} while (i < allGameTables.length);
 						})
 						.catch(error => {
 							target.removeAttribute('disabled');
-							console.log(error);
+							console.error(error);
 						});
 				})
 				.catch(error => {
 					target.removeAttribute('disabled');
-					console.log(error);
+					console.error(error);
 				});
 		} else {
 			newToaster('Invalid', 'fail');
