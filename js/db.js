@@ -204,7 +204,7 @@ trackingSearchBtn.onclick = function () {
 		setTimeout(() => {
 			//fetching data from all user profiles about the check performed
 			db.collection('dailyChecking')
-				.where('rowcount', '>=', 0)
+				.orderBy('tracking')
 				.get()
 				.then(function (data) {
 					data.forEach(function (doc) {
