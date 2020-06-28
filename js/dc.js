@@ -14,6 +14,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const header = document.querySelector('header'),
+	audioAlarm = document.getElementById('alarm'),
 	loginForm = document.getElementById('login-form'),
 	emailDiv = document.getElementById('email-div'),
 	passwordDiv = document.getElementById('password-div'),
@@ -44,6 +45,36 @@ let allTargets;
 let tablesDB;
 let casinosDB;
 let inputElements = document.querySelectorAll('.inputElement');
+
+setInterval(() => {
+	let hours = new Date().getHours();
+	let minutes = new Date().getMinutes();
+	// audioAlarm.loop = true;
+
+	if (hours === 17 && minutes === 00) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert('Stop being a lazy ass and go check ITALIAN tables!');
+		}, 1000);
+	} else if (hours === 18 && minutes === 00) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert('Go and check Fuuuufikon!');
+		}, 1000);
+	} else if (hours === 19 && minutes === 00) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert("The Brits are coming and BREXIT won't save us!");
+		}, 1000);
+	} else if (hours === 22 && minutes === 00) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert(
+				"SIA BJ 1 and Payback should be ready! Fingers crossed that the Tricaster hasn't choked..."
+			);
+		}, 1000);
+	}
+}, 60000);
 
 //Add login event
 loginForm.addEventListener('submit', event => {
