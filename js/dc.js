@@ -47,26 +47,50 @@ let casinosDB;
 let inputElements = document.querySelectorAll('.inputElement');
 
 setInterval(() => {
+	let day = new Date().getDay();
 	let hours = new Date().getHours();
 	let minutes = new Date().getMinutes();
+	let seconds = new Date().getSeconds();
 	// audioAlarm.loop = true;
 
-	if (hours === 17 && minutes === 00) {
+	// console.log(day);
+	// console.log(hours);
+	// console.log(minutes);
+	// console.log(seconds);
+
+	if (hours === 10 && minutes === 0 && (day !== 6 || day !== 7)) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert(
+				'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
+			);
+		}, 1000);
+	} else if (
+		hours === 16 &&
+		minutes === 0 &&
+		seconds === 0 &&
+		(day !== 6 || day !== 7)
+	) {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
+		}, 1000);
+	} else if (hours === 17 && minutes === 0 && seconds === 0) {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert('Stop being a lazy ass and go check ITALIAN tables!');
 		}, 1000);
-	} else if (hours === 18 && minutes === 00) {
+	} else if (hours === 18 && minutes === 0 && seconds === 0) {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert('Go and check Fuuuufikon!');
 		}, 1000);
-	} else if (hours === 19 && minutes === 00) {
+	} else if (hours === 19 && minutes === 0 && seconds === 0) {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert("The Brits are coming and BREXIT won't save us!");
 		}, 1000);
-	} else if (hours === 22 && minutes === 00) {
+	} else if (hours === 22 && minutes === 0 && seconds === 0) {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert(
@@ -74,7 +98,7 @@ setInterval(() => {
 			);
 		}, 1000);
 	}
-}, 60000);
+}, 1000);
 
 //Add login event
 loginForm.addEventListener('submit', event => {
