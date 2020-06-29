@@ -505,6 +505,7 @@ const updateCounterAndOptions = event => {
 								platform: platform,
 								casino: casino,
 								qa: persona,
+								id: target.id,
 								when: clientTime,
 							}),
 						})
@@ -728,19 +729,10 @@ const updateCounterAndOptions = event => {
 					let tracking = doc.data().tracking;
 					let lastTracked = tracking.pop();
 
+					// Decrementing counter for the corresponding Object
+					rowObjects[lastTracked.id].counter--;
+
 					//updating row counter value in the DB
-					let i = 0;
-					do {
-						if (
-							lastTracked.name === rowObjects[i].name &&
-							lastTracked.platform === rowObjects[i].platform &&
-							lastTracked.casino === rowObjects[i].casino
-						) {
-							rowObjects[i].counter--;
-							break;
-						}
-						i++;
-					} while (i < rowObjects.length);
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
@@ -748,47 +740,37 @@ const updateCounterAndOptions = event => {
 							tracking: tracking,
 						})
 						.then(function () {
-							let allGameTables = document.querySelectorAll('.table-name');
-							let allPlatforms = document.querySelectorAll('.platform-name');
-							let allCasinos = document.querySelectorAll('.casino-name');
+							let matchedCounter = document.getElementById(
+								`counter-${lastTracked.id}`
+							);
+							let matchedCountersTarget = document.getElementById(
+								`target-${lastTracked.id}`
+							);
 
-							//i = 1 to ignore main-row
-							let i = 0;
+							matchedCounter.innerHTML--;
 
-							do {
-								if (
-									lastTracked.name === allGameTables[i].value &&
-									lastTracked.platform === allPlatforms[i].value &&
-									lastTracked.casino === allCasinos[i].value
-								) {
-									let matchedCounter = document.getElementById(`counter-${i}`);
-									let matchedCountersTarget = document.getElementById(
-										`target-${i}`
-									);
+							if (
+								Number.parseInt(matchedCounter.innerHTML) >=
+								matchedCountersTarget.value
+							) {
+								matchedCounter.classList.add('valid');
+								matchedCounter.classList.remove('invalid');
+							} else {
+								matchedCounter.classList.add('invalid');
+								matchedCounter.classList.remove('valid');
+							}
 
-									matchedCounter.innerHTML--;
-
-									if (matchedCounter.innerHTML >= matchedCountersTarget.value) {
-										matchedCounter.classList.add('valid');
-										matchedCounter.classList.remove('invalid');
-									} else {
-										matchedCounter.classList.add('invalid');
-										matchedCounter.classList.remove('valid');
-									}
-
-									newToaster('Removed', 'success');
-									target.removeAttribute('disabled');
-									break;
-								}
-								i++;
-							} while (i < allGameTables.length);
+							newToaster('Removed', 'success');
+							target.removeAttribute('disabled');
 						})
 						.catch(error => {
+							newToaster('Retry', 'fail');
 							target.removeAttribute('disabled');
 							console.error(error);
 						});
 				})
 				.catch(error => {
+					newToaster('Retry', 'fail');
 					target.removeAttribute('disabled');
 					console.error(error);
 				});
