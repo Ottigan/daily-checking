@@ -58,7 +58,12 @@ setInterval(() => {
 	// console.log(minutes);
 	// console.log(seconds);
 
-	if (hours === 10 && minutes === 0 && (day !== 6 || day !== 7)) {
+	if (
+		hours === 10 &&
+		minutes === 0 &&
+		seconds === 0 &&
+		(day !== 6 || day !== 7)
+	) {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert(
