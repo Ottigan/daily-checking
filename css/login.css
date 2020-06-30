@@ -73,16 +73,23 @@ input:-webkit-autofill::first-line {
 }
 
 #login-form button {
-	height: 30px;
+	height: 40px;
 	font-size: 1.2rem;
-	color: rgb(100, 180, 250);
+	color: white;
+	background-color: rgb(100, 180, 250);
 	border: 1px solid black;
-	border-radius: 3px;
+	box-shadow: 0 0 1px black inset;
 }
 
 #login-form button:hover {
+	background-color: rgb(36, 41, 46);
+	color: white;
 	cursor: pointer;
-	background-color: rgb(230, 230, 230);
+}
+
+#reset-password-btn {
+	height: 26px !important;
+	margin-bottom: 2px;
 }
 
 .empty-value {
