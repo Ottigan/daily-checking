@@ -13,16 +13,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const styleSheet = document.getElementById('style'),
+	logOutButton = document.getElementById('logout-button'),
+	popOutBtn = document.getElementById('pop-out'),
 	themeToggle = document.querySelector('.theme-label'),
 	themeSwitch = document.querySelector('#switch'),
 	theBall = document.querySelector('.ball'),
-	loginForm = document.getElementById('login-form'),
-	emailDiv = document.getElementById('email-div'),
-	passwordDiv = document.getElementById('password-div'),
-	txtUser = document.getElementById('txt-user'),
-	txtPass = document.getElementById('txt-pass'),
-	loginButton = document.getElementById('login-button'),
-	logoutButton = document.getElementById('logout-button'),
 	trackingFrom = document.querySelector('#tracking-from'),
 	trackingTo = document.querySelector('#tracking-to'),
 	trackingName = document.querySelector('#tracking-name'),
@@ -45,36 +40,6 @@ let userUID,
 	online = false,
 	csvArray = '';
 
-//Add login event
-loginButton.addEventListener('click', function () {
-	const email = txtUser.value;
-	const pass = txtPass.value;
-	const authPromise = auth.signInWithEmailAndPassword(email, pass);
-
-	authPromise
-		.then(function () {
-			console.log('Login successful!');
-			txtUser.classList.remove('empty-value');
-			txtPass.classList.remove('empty-value');
-		})
-		.catch(error => {
-			console.error(error.message);
-			if (
-				error.message ===
-				'There is no user record corresponding to this identifier. The user may have been deleted.'
-			) {
-				txtUser.classList.add('empty-value');
-				txtUser.focus();
-			} else if (
-				error.message ===
-				'The password is invalid or the user does not have a password.'
-			) {
-				txtPass.classList.add('empty-value');
-				txtPass.focus();
-			}
-		});
-});
-
 firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 	if (dailyCheckingUser) {
 		userUID = dailyCheckingUser.uid;
@@ -87,14 +52,8 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 				let greeting = document.createElement('h6');
 
 				greeting.innerText = `Welcome, ${qa}!`;
-				greeting.style.cssText =
-					'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
-				logoutButton.before(greeting);
-
-				logoutButton.style.display = 'inline';
-				emailDiv.style.display = 'none';
-				passwordDiv.style.display = 'none';
-				loginButton.style.display = 'none';
+				greeting.classList.add('greeting');
+				logOutButton.before(greeting);
 			})
 			.catch(function (error) {
 				console.error(error);
@@ -124,19 +83,12 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 
 		online = true;
 	} else {
-		logoutButton.style.display = 'none';
-		emailDiv.style.display = 'flex';
-		passwordDiv.style.display = 'flex';
-		loginButton.style.display = 'inline';
-		online = false;
+		window.location.replace('.');
 	}
 });
 
-logoutButton.addEventListener('click', function () {
-	auth.signOut().then(function () {
-		document.querySelector('h6').remove();
-		logoutButton.classList = 'hide-logout';
-	});
+logOutButton.addEventListener('click', function () {
+	auth.signOut().then(function () {});
 });
 
 const updateOptions = event => {
@@ -335,6 +287,17 @@ trackingSearchBtn.onclick = function () {
 				});
 		}, 1200);
 	}
+};
+
+popOutBtn.onclick = function () {
+	window.open(
+		document.URL,
+		'targetWindow',
+		`width=990,
+		height=982,
+		left=2842,
+		top=0`
+	);
 };
 
 themeToggle.onclick = function () {

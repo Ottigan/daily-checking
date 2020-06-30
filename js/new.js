@@ -13,16 +13,11 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const styleSheet = document.getElementById('style'),
+	logOutButton = document.getElementById('logout-button'),
+	popOutBtn = document.getElementById('pop-out'),
 	themeToggle = document.querySelector('.theme-label'),
 	themeSwitch = document.querySelector('#switch'),
 	theBall = document.querySelector('.ball'),
-	loginForm = document.getElementById('login-form'),
-	emailDiv = document.getElementById('email-div'),
-	passwordDiv = document.getElementById('password-div'),
-	txtUser = document.getElementById('txt-user'),
-	txtPass = document.getElementById('txt-pass'),
-	loginButton = document.getElementById('login-button'),
-	logoutButton = document.getElementById('logout-button'),
 	newTable = document.querySelector('#new-table'),
 	newCasino = document.querySelector('#new-casino'),
 	addTableBtn = document.querySelector('#add-table'),
@@ -33,36 +28,6 @@ const styleSheet = document.getElementById('style'),
 	db = firebase.firestore();
 
 let userUID;
-
-//Add login event
-loginButton.addEventListener('click', function () {
-	const email = txtUser.value;
-	const pass = txtPass.value;
-	const authPromise = auth.signInWithEmailAndPassword(email, pass);
-
-	authPromise
-		.then(function () {
-			console.log('Login successful!');
-			txtUser.classList.remove('empty-value');
-			txtPass.classList.remove('empty-value');
-		})
-		.catch(error => {
-			console.error(error.message);
-			if (
-				error.message ===
-				'There is no user record corresponding to this identifier. The user may have been deleted.'
-			) {
-				txtUser.classList.add('empty-value');
-				txtUser.focus();
-			} else if (
-				error.message ===
-				'The password is invalid or the user does not have a password.'
-			) {
-				txtPass.classList.add('empty-value');
-				txtPass.focus();
-			}
-		});
-});
 
 firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 	if (dailyCheckingUser) {
@@ -76,14 +41,8 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 				let greeting = document.createElement('h6');
 
 				greeting.innerText = `Welcome, ${qa}!`;
-				greeting.style.cssText =
-					'margin-bottom: 3px; align-self: flex-end; color: white; visibility: visible; font-family: Georgia, "Times New Roman", Times, serif; font-weight: 400';
-				logoutButton.before(greeting);
-
-				logoutButton.style.display = 'inline';
-				emailDiv.style.display = 'none';
-				passwordDiv.style.display = 'none';
-				loginButton.style.display = 'none';
+				greeting.classList.add('greeting');
+				logOutButton.before(greeting);
 			})
 			.catch(function (error) {
 				console.error(error);
@@ -120,18 +79,12 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 				console.log('Error getting document:', error);
 			});
 	} else {
-		logoutButton.style.display = 'none';
-		emailDiv.style.display = 'flex';
-		passwordDiv.style.display = 'flex';
-		loginButton.style.display = 'inline';
+		window.location.replace('.');
 	}
 });
 
-logoutButton.addEventListener('click', function () {
-	auth.signOut().then(function () {
-		document.querySelector('h6').remove();
-		logoutButton.classList = 'hide-logout';
-	});
+logOutButton.addEventListener('click', function () {
+	auth.signOut().then(function () {});
 });
 
 addTableBtn.onclick = function () {
@@ -164,7 +117,7 @@ const addTableListItem = item => {
 	// listItem.innerText = item;
 	listItem.style.paddingLeft = '2px';
 	listItem.classList.add('l-decoration', 'flex', 'jc-sb', 'ai-c', 'list-item');
-	listItem.innerHTML = `${item}<button type="button" style="width: 10%" class="remove">x</button>`;
+	listItem.innerHTML = `${item}<button type="button" class="remove">x</button>`;
 	tableList.prepend(listItem);
 };
 
@@ -196,7 +149,7 @@ addCasinoBtn.onclick = function () {
 const addCasinoListItem = item => {
 	const listItem = document.createElement('li');
 	listItem.classList.add('l-decoration', 'flex', 'jc-sb', 'ai-c', 'list-item');
-	listItem.innerHTML = `${item}<button type="button" style="width: 10%" class="remove">x</button>`;
+	listItem.innerHTML = `${item}<button type="button" class="remove">x</button>`;
 	casinoList.prepend(listItem);
 };
 
@@ -299,6 +252,17 @@ newCasino.addEventListener('keypress', function (e) {
 		}
 	}
 });
+
+popOutBtn.onclick = function () {
+	window.open(
+		document.URL,
+		'targetWindow',
+		`width=990,
+		height=982,
+		left=2842,
+		top=0`
+	);
+};
 
 themeToggle.onclick = function () {
 	if (themeSwitch.checked) {

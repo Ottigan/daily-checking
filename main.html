@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>New Product</title>
+		<title>Daily Checking</title>
 		<link
 			href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400&display=swap"
 			rel="stylesheet"
@@ -14,12 +14,10 @@
 	</head>
 
 	<body>
+		<audio id="alarm" src="./assets/alarm.mp3" preload="auto"></audio>
 		<header>
 			<nav>
-				<img
-					src="./assets/logo.png"
-					alt="Logo containing a chekmark and words - Daily Checking"
-				/>
+				<img src="./assets/logo.png" alt="Logo containing a chekmark and words - Daily Checking" />
 				<div id="burger-container">
 					<input type="checkbox" id="menu-checkbox" />
 					<div id="burger-menu">
@@ -28,10 +26,14 @@
 						<div class="burger-line"></div>
 					</div>
 					<ul class="nav-list">
-						<li><a id="dc" href="main.html">Daily Checking</a></li>
-						<li><a id="tracking" href="db.html">Tracking DB</a></li>
 						<li class="current-location">
-							<a id="new-product" href="#">Add New Table/Casino</a>
+							<a id="dc" href="#""
+								>Daily Checking</a
+							>
+						</li>
+						<li><a id="tracking" href="db.html">Tracking DB</a></li>
+						<li>
+							<a id="new-product" href="new.html">Add New Table/Casino</a>
 						</li>
 					</ul>
 				</div>
@@ -81,60 +83,92 @@
 			</nav>
 		</header>
 		<section style="margin-top: 50px;" class="flex jc-c">
-			<div class="flex vertical">
-				<div id="new-item-container" class="container flex jc-sb">
-					<form action="" style="width: 45%; margin: 0 3px 0 0;" class="flex">
-						<div class="flex flex-grow">
-							<input
-								id="new-table"
-								class="flex-grow"
-								name="new-table"
-								type="text"
-								placeholder="Game Table Name"
-								pattern="[a-zA-Z 0-9]+"
-							/>
-						</div>
-						<button
-							style="width: 10%; align-self: flex-end;"
-							type="button"
-							id="add-table"
-							name="add-table"
-						>
-							Add
-						</button>
-					</form>
-					<form action="" style="width: 45%;" class="flex">
-						<div class="flex flex-grow">
-							<input
-								id="new-casino"
-								type="text"
-								name=""
-								placeholder="Casino Name"
-								class="flex-grow"
-							/>
-						</div>
-						<button
-							style="width: 10%; align-self: flex-end;"
-							type="button"
-							id="add-casino"
-						>
-							Add
-						</button>
-					</form>
-				</div>
-				<div style="margin-top: 20px;" class="flex jc-sb">
-					<div style="width: 45%;">
-						<ul id="table-list" class="ls-none"></ul>
+			<div id="checkrows" class="flex vertical jc-c js-c ai-fe">
+				<form id="main-row" action="" method="" class="flex jc-c ai-fe">
+					<div>
+						<label for="table-0">Game Table</label><br />
+						<input
+							id="table-0"
+							type="text"
+							name="table"
+							list="names"
+							class="inputElement table-name"
+							autocomplete="off"
+							pattern="[a-zA-Z0-9 ]+"
+						/>
+						<datalist id="names"> </datalist>
 					</div>
-					<div style="width: 45%;">
-						<ul id="casino-list" class="ls-none"></ul>
+					<div>
+						<label for="platform-0">Platform</label><br />
+						<input
+							id="platform-0"
+							name="platform"
+							type="text"
+							list="platforms"
+							class="platform-name"
+							autocomplete="off"
+						/>
+						<datalist id="platforms">
+							<option value="Android MHTML5"></option>
+							<option value="Android Native"></option>
+							<option value="Android Wrapper"></option>
+							<option value="iOS MHTML5"></option>
+							<option value="iOS Native"></option>
+							<option value="iOS Wrapper"></option>
+							<option value="MacOS Chrome"></option>
+							<option value="MacOS Download"></option>
+							<option value="MacOS Firefox"></option>
+							<option value="MacOS Safari"></option>
+							<option value="Windows Chrome"></option>
+							<option value="Windows Download"></option>
+							<option value="Windows Firefox"></option>
+						</datalist>
 					</div>
+					<div>
+						<label for="casino-0">Casino</label><br />
+						<input
+							id="casino-0"
+							type="text"
+							name="casino"
+							list="casinos"
+							class="inputElement casino-name"
+							autocomplete="off"
+						/>
+						<datalist id="casinos"> </datalist>
+					</div>
+					<span id="counter-0" class="counter" style="display: none;">0</span>
+					<input
+						id="target-0"
+						type="number"
+						class="target highlight-this"
+						style="display: none;"
+						value="1000"
+						maxlength="4"
+					/>
+					<div style="position: absolute; visibility: hidden;">
+						<div id="hidden-menu" class="flex ai-c jc-sb">
+							<button id="reset-button" type="button">Reset</button>
+							<button id="save-button" type="button">
+								Sort
+							</button>
+							<button id="undo-button" type="button">Undo</button>
+						</div>
+					</div>
+					<button id="menu-toggle" type="button">Options</button>
+					<button id="0" class="submitButton" type="button">
+						Submit
+					</button>
+				</form>
+				<div id="row-manipulator" class="flex">
+					<button>Add</button>
+					<button>Remove</button>
 				</div>
 			</div>
 		</section>
+		<div id="overlay" class="flex jc-c ai-c"></div>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-auth.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js"></script>
-		<script src="js/new.js"></script>
+		<script src="js/dc.js"></script>
 	</body>
 </html>
