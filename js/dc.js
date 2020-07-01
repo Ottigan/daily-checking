@@ -2,13 +2,13 @@
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-	apiKey: 'AIzaSyCOiJc8EKT9DyXyuAKPeKpJLnvYs_vINFU',
-	authDomain: 'starlit-braid-276207.firebaseapp.com',
-	databaseURL: 'https://starlit-braid-276207.firebaseio.com',
-	projectId: 'starlit-braid-276207',
-	storageBucket: 'starlit-braid-276207.appspot.com',
-	messagingSenderId: '30277815528',
-	appId: '1:30277815528:web:517d7d0743d3d5530a4d5d',
+	apiKey: 'AIzaSyA3iWhjLXUOmjnidixx6GC_DT5M2Ddt4bI',
+	authDomain: 'daily-checking.firebaseapp.com',
+	databaseURL: 'https://daily-checking.firebaseio.com',
+	projectId: 'daily-checking',
+	storageBucket: 'daily-checking.appspot.com',
+	messagingSenderId: '79540097878',
+	appId: '1:79540097878:web:b847d77934b24aad0efcf7',
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);

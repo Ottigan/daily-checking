@@ -2,13 +2,13 @@
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-	apiKey: 'AIzaSyCOiJc8EKT9DyXyuAKPeKpJLnvYs_vINFU',
-	authDomain: 'starlit-braid-276207.firebaseapp.com',
-	databaseURL: 'https://starlit-braid-276207.firebaseio.com',
-	projectId: 'starlit-braid-276207',
-	storageBucket: 'starlit-braid-276207.appspot.com',
-	messagingSenderId: '30277815528',
-	appId: '1:30277815528:web:517d7d0743d3d5530a4d5d',
+	apiKey: 'AIzaSyA3iWhjLXUOmjnidixx6GC_DT5M2Ddt4bI',
+	authDomain: 'daily-checking.firebaseapp.com',
+	databaseURL: 'https://daily-checking.firebaseio.com',
+	projectId: 'daily-checking',
+	storageBucket: 'daily-checking.appspot.com',
+	messagingSenderId: '79540097878',
+	appId: '1:79540097878:web:b847d77934b24aad0efcf7',
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -50,13 +50,28 @@ loginForm.addEventListener('submit', event => {
 });
 
 resetBtn.onclick = () => {
+	function message(text, color) {
+		let result = document.createElement('p');
+		result.innerHTML = text;
+		result.style.cssText = `margin-left: 15px; color: ${color}; font-family: "Roboto", sans-serif; font-weight: 700; opacity: 1;`;
+		resetBtn.after(result);
+		setInterval(() => {
+			result.style.opacity -= 0.05;
+		}, 200);
+		setTimeout(() => {
+			result.remove();
+		}, 4000);
+	}
+
 	auth
 		.sendPasswordResetEmail(user.value)
 		.then(function () {
-			console.log('Check Email');
 			resetBtn.blur();
+			message('Sent!', 'green');
 		})
 		.catch(function (error) {
-			// An error happened.
+			console.log(error);
+			message('Wrong email!', 'red');
+			user.focus();
 		});
 };

@@ -92,6 +92,10 @@ input:-webkit-autofill::first-line {
 	margin-bottom: 2px;
 }
 
+#reset-password-btn:focus {
+	outline: 1px solid white;
+}
+
 .empty-value {
 	outline-color: red !important;
 }
