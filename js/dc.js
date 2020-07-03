@@ -258,11 +258,13 @@ const manipRows = event => {
 			.doc(userUID)
 			.get()
 			.then(function (doc) {
-				let objectArray = doc.data().rowObjects;
-				let deleteObject = objectArray.find(
-					value => value.id === objectArray.length - 1
+				let rowObjects = doc.data().rowObjects;
+				let deleteObject = rowObjects.find(
+					value =>
+						Number.parseInt(value.id) ===
+						Number.parseInt(row.id.substring(row.id.indexOf('-') + 1))
 				);
-				if (objectArray.length - 1 > 0) {
+				if (rowObjects.length - 1 > 0) {
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
