@@ -14,13 +14,17 @@ body {
 
 @media screen and (min-width: 1690px) {
 	nav {
-		position: relative;
+		position: fixed;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
 		background-color: rgb(36, 41, 46);
 		font-size: 1.4rem;
 		height: 60px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		box-shadow: 0 2px 5px black;
 	}
 
 	nav img {
@@ -210,13 +214,17 @@ body {
 
 @media screen and (max-width: 1689px) {
 	nav {
-		position: relative;
+		position: fixed;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
 		background-color: rgb(36, 41, 46);
 		font-size: 1.4rem;
 		height: 60px;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		box-shadow: 0 2px 5px black;
 	}
 
 	nav img {
@@ -295,13 +303,13 @@ body {
 		list-style: none;
 		position: absolute;
 		z-index: 1;
-		top: 60px;
+		top: 59px;
 		left: -287px;
 		height: 150px;
 		background-color: rgb(36, 41, 46);
-		border: 2px solid black;
+		box-shadow: 0 2px 2px black;
 		border-top: none;
-		transition: transform 0.2s;
+		transition: transform linear 0.2s;
 	}
 
 	#menu-checkbox:checked ~ .nav-list {
@@ -440,6 +448,10 @@ body {
 	thead tr td:last-child {
 		width: calc(22% + 4px);
 	}
+}
+
+header {
+	height: 60px;
 }
 
 .current-location a {

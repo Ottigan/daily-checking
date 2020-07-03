@@ -14,11 +14,14 @@ body {
 
 @media screen and (min-width: 1690px) {
 	nav {
-		position: relative;
+		position: fixed;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
 		background-color: rgb(20, 20, 20);
 		font-size: 1.4rem;
 		height: 60px;
-		border-bottom: 2px solid var(--accent-color);
+		border-bottom: 1px solid var(--accent-color);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -203,11 +206,14 @@ body {
 
 @media screen and (max-width: 1689px) {
 	nav {
-		position: relative;
+		position: fixed;
+		top: 0px;
+		z-index: 1;
+		width: 100%;
 		background-color: rgb(20, 20, 20);
-		font-size: x-large;
+		font-size: 1.4rem;
 		height: 60px;
-		border-bottom: 2px inset var(--accent-color);
+		border-bottom: 1px solid var(--accent-color);
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
@@ -294,13 +300,12 @@ body {
 		list-style: none;
 		position: absolute;
 		z-index: 1;
-		top: 58px;
+		top: 59px;
 		left: -287px;
 		height: 150px;
 		background-color: rgb(20, 20, 20);
-		border: 2px solid var(--accent-color);
+		border: 1px solid var(--accent-color);
 		border-top: none;
-		box-shadow: -2px -4px 2px rgb(20, 20, 20);
 		transition: transform linear 0.2s;
 	}
 
@@ -436,6 +441,10 @@ body {
 	thead tr td:last-child {
 		width: calc(22% + 4px);
 	}
+}
+
+header {
+	height: 60px;
 }
 
 .current-location a {
