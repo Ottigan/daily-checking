@@ -438,31 +438,36 @@ const updateCounterAndOptions = event => {
 					let rowObjects = doc.data().rowObjects;
 					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
+					let indexOfSumbit = rowObjects.findIndex(
+						obj => Number.parseInt(obj.id) === Number.parseInt(target.id)
+					);
 
 					rowObjects.forEach(object => {
-						if (object.id > 0) {
-							object.color = document.getElementById(
-								`format-${object.id}`
-							).style.backgroundColor;
-
-							if (object.id == Number.parseInt(target.id)) {
-								object.counter = Number.parseInt(
-									document.getElementById(`counter-${object.id}`).innerHTML
-								);
-
-								object.counter++;
+						if (Number.parseInt(object.id) === Number.parseInt(target.id)) {
+							if (object.id > 0) {
+								object.color = document.getElementById(
+									`format-${object.id}`
+								).style.backgroundColor;
 							}
+
+							object.name = document.getElementById(`table-${object.id}`).value;
+							object.platform = document.getElementById(
+								`platform-${object.id}`
+							).value;
+							object.casino = document.getElementById(
+								`casino-${object.id}`
+							).value;
+
+							object.counter = Number.parseInt(
+								document.getElementById(`counter-${object.id}`).innerHTML
+							);
+
+							object.counter++;
+
 							object.target = Number.parseInt(
 								document.getElementById(`target-${object.id}`).value
 							);
 						}
-						object.name = document.getElementById(`table-${object.id}`).value;
-						object.platform = document.getElementById(
-							`platform-${object.id}`
-						).value;
-						object.casino = document.getElementById(
-							`casino-${object.id}`
-						).value;
 					});
 					db.collection('dailyChecking')
 						.doc(userUID)
@@ -705,7 +710,10 @@ const updateCounterAndOptions = event => {
 
 					// Decrementing counter for the corresponding Object
 					rowObjects[
-						rowObjects.findIndex(object => object.id === lastTracked.id)
+						rowObjects.findIndex(
+							object =>
+								Number.parseInt(object.id) === Number.parseInt(lastTracked.id)
+						)
 					].counter--;
 
 					//updating row counter value in the DB
