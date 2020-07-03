@@ -153,7 +153,7 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 								rowObjects[i].counter;
 						} else if (i > 0) {
 							const rowItem = document.createElement('form');
-							rowItem.id = `row-${i}`;
+							rowItem.id = `row-${rowObjects[i].id}`;
 							rowItem.setAttribute('draggable', true);
 							rowItem.classList.add('flex', 'jc-c', 'table-row');
 							rowItem.innerHTML = `
@@ -294,6 +294,8 @@ const manipRows = event => {
 			.then(function (doc) {
 				let id = doc.data().rowObjects.length;
 				const rowItem = document.createElement('form');
+				rowItem.id = `row-${id}`;
+				rowItem.setAttribute('draggable', true);
 				rowItem.classList.add('flex', 'jc-c', 'table-row');
 				rowItem.innerHTML = `<div id="format-${id}" class="row-format"></div>
 							<div>
@@ -426,10 +428,6 @@ const updateCounterAndOptions = event => {
 			counter = document.querySelector(`#counter-${target.id}`),
 			goal = document.querySelector(`#target-${target.id}`);
 
-		let counterNumber = Number.parseInt(counter.innerHTML);
-
-		counterNumber++;
-
 		//getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
@@ -480,7 +478,7 @@ const updateCounterAndOptions = event => {
 							}),
 						})
 						.then(function () {
-							let x = counter.innerHTML,
+							let x = Number.parseInt(counter.innerHTML),
 								y = goal.value;
 							x++;
 							counter.innerHTML = x;
@@ -553,16 +551,25 @@ const updateCounterAndOptions = event => {
 		//Re-assigning values to DOM elements
 		for (let i = 0; i < newTableRowOrder.length; i++) {
 			// DIVs and SPANs are not elements, thus need to be accessed through children
+			tableRows[i].id = newTableRowOrder[i].id;
+			tableRows[i].children[0].id = newTableRowOrder[i].children[0].id;
 			tableRows[i].children[0].style.backgroundColor =
 				newTableRowOrder[i].children[0].style.backgroundColor;
+			tableRows[i][0].id = newTableRowOrder[i][0].id;
 			tableRows[i][0].value = newTableRowOrder[i][0].value;
+			tableRows[i][1].id = newTableRowOrder[i][1].id;
 			tableRows[i][1].value = newTableRowOrder[i][1].value;
+			tableRows[i][2].id = newTableRowOrder[i][2].id;
 			tableRows[i][2].value = newTableRowOrder[i][2].value;
+			tableRows[i].children[4].id = newTableRowOrder[i].children[4].id;
 			tableRows[i].children[4].innerText =
 				newTableRowOrder[i].children[4].innerText;
+			tableRows[i][3].id = newTableRowOrder[i][3].id;
 			tableRows[i][3].value = newTableRowOrder[i][3].value;
+			tableRows[i][4].id = newTableRowOrder[i][4].id;
 		}
 
+		tableRows = document.querySelectorAll('.table-row');
 		allCounters = document.querySelectorAll('.counter');
 		allTargets = document.querySelectorAll('.target');
 
@@ -587,24 +594,25 @@ const updateCounterAndOptions = event => {
 			.get()
 			.then(function (doc) {
 				let rowObjects = doc.data().rowObjects;
-				rowObjects.forEach(object => {
-					if (object.id > 0) {
-						object.color = document.getElementById(
-							`format-${object.id}`
-						).style.backgroundColor;
-						object.counter = Number.parseInt(
-							document.getElementById(`counter-${object.id}`).innerHTML
-						);
-						object.target = Number.parseInt(
-							document.getElementById(`target-${object.id}`).value
-						);
-					}
-					object.name = document.getElementById(`table-${object.id}`).value;
-					object.platform = document.getElementById(
-						`platform-${object.id}`
-					).value;
-					object.casino = document.getElementById(`casino-${object.id}`).value;
-				});
+
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i + 1].id = tableRows[i].id.substring(
+						tableRows[i].id.indexOf('-') + 1
+					);
+					rowObjects[i + 1].color =
+						tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i + 1].name = tableRows[i][0].value;
+
+					rowObjects[i + 1].platform = tableRows[i][1].value;
+
+					rowObjects[i + 1].casino = tableRows[i][2].value;
+
+					rowObjects[i + 1].counter = Number.parseInt(
+						tableRows[i].children[4].innerHTML
+					);
+					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+				}
 
 				db.collection('dailyChecking')
 					.doc(userUID)
@@ -622,8 +630,6 @@ const updateCounterAndOptions = event => {
 				console.log(error);
 			});
 	} else if (target.id === 'reset-button' && event.type === 'click') {
-		let goal = document.querySelectorAll('.target');
-
 		//getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
@@ -698,7 +704,9 @@ const updateCounterAndOptions = event => {
 					let lastTracked = tracking.pop();
 
 					// Decrementing counter for the corresponding Object
-					rowObjects[lastTracked.id].counter--;
+					rowObjects[
+						rowObjects.findIndex(object => object.id === lastTracked.id)
+					].counter--;
 
 					//updating row counter value in the DB
 					db.collection('dailyChecking')
@@ -819,13 +827,18 @@ const moveRows = event => {
 		event.dataTransfer.setData('text', event.target.closest('.table-row').id);
 
 		let targetID = event.dataTransfer.getData('text');
-		let rawID = Number.parseInt(targetID.substring(targetID.indexOf('-') + 1));
+		let currentRowIndex;
 
 		document.getElementById(targetID).classList.add('move-rows-target-up');
-		for (let i = rawID; i <= tableRows.length; i++) {
-			document
-				.getElementById('row-' + i)
-				.classList.add('move-rows-target-down');
+
+		for (let i = 0; i < tableRows.length; i++) {
+			if (tableRows[i].id === targetID) {
+				currentRowIndex = i;
+			}
+		}
+
+		for (let i = currentRowIndex; i < tableRows.length - 1; i++) {
+			tableRows[i + 1].classList.add('move-rows-target-down');
 		}
 	} else if (
 		event.type === 'dragenter' &&
@@ -887,20 +900,28 @@ const moveRows = event => {
 
 		tableRows = document.querySelectorAll('.table-row');
 
-		//Re-assigning values to DOM elements
-		for (let i = 0; i < tableRows.length; i++) {
-			// DIVs and SPANs are not elements, thus need to be accessed through children
-			tableRows[i].id = 'row-' + (i + 1);
-			tableRows[i].children[0].id = 'format-' + (i + 1);
-			tableRows[i][0].id = 'table-' + (i + 1);
-			tableRows[i][1].id = 'platform-' + (i + 1);
-			tableRows[i][2].id = 'casino-' + (i + 1);
-			tableRows[i].children[4].id = 'counter-' + (i + 1);
-			tableRows[i][3].id = 'target-' + (i + 1);
-			tableRows[i][4].id = i + 1;
-		}
+		//=================================================================
 
-		tableRows = document.querySelectorAll('.table-row');
+		// Following code re-apply IDs in ascending order
+
+		//=================================================================
+
+		// //Re-assigning values to DOM elements
+		// for (let i = 0; i < tableRows.length; i++) {
+		// 	// DIVs and SPANs are not elements, thus need to be accessed through children
+		// 	tableRows[i].id = 'row-' + (i + 1);
+		// 	tableRows[i].children[0].id = 'format-' + (i + 1);
+		// 	tableRows[i][0].id = 'table-' + (i + 1);
+		// 	tableRows[i][1].id = 'platform-' + (i + 1);
+		// 	tableRows[i][2].id = 'casino-' + (i + 1);
+		// 	tableRows[i].children[4].id = 'counter-' + (i + 1);
+		// 	tableRows[i][3].id = 'target-' + (i + 1);
+		// 	tableRows[i][4].id = i + 1;
+		// }
+
+		// tableRows = document.querySelectorAll('.table-row');
+
+		//=================================================================
 
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
@@ -909,22 +930,24 @@ const moveRows = event => {
 			.get()
 			.then(function (doc) {
 				let rowObjects = doc.data().rowObjects;
-				for (let i = 1; i < rowObjects.length; i++) {
-					rowObjects[i].color = document.getElementById(
-						`format-${i}`
-					).style.backgroundColor;
-					rowObjects[i].counter = Number.parseInt(
-						document.getElementById(`counter-${i}`).innerHTML
-					);
-					rowObjects[i].target = Number.parseInt(
-						document.getElementById(`target-${i}`).value
-					);
 
-					rowObjects[i].name = document.getElementById(`table-${i}`).value;
-					rowObjects[i].platform = document.getElementById(
-						`platform-${i}`
-					).value;
-					rowObjects[i].casino = document.getElementById(`casino-${i}`).value;
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i + 1].id = tableRows[i].id.substring(
+						tableRows[i].id.indexOf('-') + 1
+					);
+					rowObjects[i + 1].color =
+						tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i + 1].name = tableRows[i][0].value;
+
+					rowObjects[i + 1].platform = tableRows[i][1].value;
+
+					rowObjects[i + 1].casino = tableRows[i][2].value;
+
+					rowObjects[i + 1].counter = Number.parseInt(
+						tableRows[i].children[4].innerHTML
+					);
+					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
 				}
 
 				db.collection('dailyChecking')
@@ -934,11 +957,11 @@ const moveRows = event => {
 					})
 					.then(function () {})
 					.catch(function (error) {
-						console.log(error);
+						console.error(error);
 					});
 			})
 			.catch(error => {
-				console.log(error);
+				console.error(error);
 			});
 	} else if (event.type === 'drop' && event.target.id !== 'temp-row') {
 		if (document.getElementById('temp-row')) {
