@@ -95,6 +95,8 @@ body {
 		fill: white;
 		position: absolute;
 		right: 135px;
+		height: 38px;
+		width: 38px;
 	}
 
 	#pop-out:hover {
@@ -452,6 +454,7 @@ body {
 
 header {
 	height: 60px;
+	margin-bottom: 50px;
 }
 
 .current-location a {
@@ -488,6 +491,16 @@ form button:focus {
 	box-shadow: 0 0 0px 1px rgb(0, 0, 0) !important;
 }
 
+#overlay {
+	position: fixed;
+	display: none;
+	top: 0;
+	background-color: rgba(0, 0, 0, 0.8);
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+}
+
 #main-row input,
 #main-row button {
 	height: 35px;
@@ -499,14 +512,14 @@ form button:focus {
 	border: 2px solid black;
 }
 
-#overlay {
-	position: fixed;
+#counter-0,
+#target-0 {
 	display: none;
-	top: 0;
-	background-color: rgba(0, 0, 0, 0.8);
-	height: 100%;
-	width: 100%;
-	z-index: 1;
+}
+
+.hidden-menu-container {
+	position: absolute;
+	visibility: hidden;
 }
 
 #hidden-menu {
@@ -986,8 +999,17 @@ tbody tr td:last-child {
 	list-style: none;
 }
 
-#new-item-container {
-	margin-bottom: 5px;
+#new-submit-container {
+	margin-bottom: 25px;
+}
+
+#new-submit-container form,
+#new-item-container div {
+	width: 45%;
+}
+
+#new-submit-container button {
+	width: 10%;
 }
 
 .l-decoration {
