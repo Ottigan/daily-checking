@@ -45,12 +45,6 @@ setInterval(() => {
 	let hours = new Date().getHours();
 	let minutes = new Date().getMinutes();
 	let seconds = new Date().getSeconds();
-	// audioAlarm.loop = true;
-
-	// console.log(day);
-	// console.log(hours);
-	// console.log(minutes);
-	// console.log(seconds);
 
 	if (
 		hours === 10 &&
@@ -227,7 +221,12 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 });
 
 logOutButton.addEventListener('click', function () {
-	auth.signOut().then(function () {});
+	auth
+		.signOut()
+		.then(() => {})
+		.catch(error => {
+			console.error(error);
+		});
 });
 
 function newToaster(text, type) {
@@ -294,24 +293,44 @@ const manipRows = event => {
 			.doc(userUID)
 			.get()
 			.then(function (doc) {
-				let id = doc.data().rowObjects.length;
+				let rowObjects = doc.data().rowObjects;
+				let idArr = [];
+
+				rowObjects.forEach(obj => {
+					idArr.push(obj.id);
+				});
+
+				idArr.sort((a, b) => a - b);
+
+				let id;
+
+				// Find lowest missing integer to be assigned as the new rows ID
+				for (let i = 1; i <= idArr.length; i++) {
+					if (idArr[i] !== i) {
+						id = i;
+						break;
+					} else if (i === idArr.length && idArr[i] === i) {
+						id = i++;
+					}
+				}
+
 				const rowItem = document.createElement('form');
 				rowItem.id = `row-${id}`;
 				rowItem.setAttribute('draggable', true);
 				rowItem.classList.add('flex', 'jc-c', 'table-row');
-				rowItem.innerHTML = `<div id="format-${id}" class="row-format"></div>
+				rowItem.innerHTML = `<div id="format-${id}" class="drag row-format"></div>
 							<div>
-							<input id="table-${id}" class="inputElement highlight-this table-name" type="text" name="table" list="names" autocomplete="off" pattern="[a-zA-Z0-9]+"/>
+							<input id="table-${id}" class="drag inputElement highlight-this table-name" type="text" name="table" list="names" autocomplete="off" pattern="[a-zA-Z0-9]+"/>
 							</div>
 							<div>
-							<input id="platform-${id}" class="highlight-this platform-name" name="platform" type="text" list="platforms" autocomplete="off"/>
+							<input id="platform-${id}" class="drag highlight-this platform-name" name="platform" type="text" list="platforms" autocomplete="off"/>
 							</div>
 							<div>
-							<input id="casino-${id}" class="inputElement highlight-this casino-name" type="text" name="casino"  list="casinos" autocomplete="off"/>
+							<input id="casino-${id}" class="drag inputElement highlight-this casino-name" type="text" name="casino"  list="casinos" autocomplete="off"/>
 							</div>
-							<span id="counter-${id}" class="counter highlight-this invalid">0</span>
-							<input id="target-${id}" class="target highlight-this" type="number" value="1" maxlength="2" min="0" max="12" />
-							<button id="${id}" class="submitButton highlight-this" type="button">
+							<span id="counter-${id}" class="drag counter highlight-this invalid">0</span>
+							<input id="target-${id}" class="drag target highlight-this" type="number" value="1" maxlength="2" min="0" max="12" />
+							<button id="${id}" class="drag submitButton highlight-this" type="button">
 							Submit
 							</button>`;
 				rowManip.before(rowItem);
@@ -802,12 +821,18 @@ const updateCounterAndOptions = event => {
 			.get()
 			.then(function (doc) {
 				let rowObjects = doc.data().rowObjects;
+				let rowToFormatID = target
+					.closest('.row-format')
+					.id.substring(target.closest('.row-format').id.indexOf('-') + 1);
+
+				// Finding the index of the rowObject where the ID matches client side formatted rows ID
 				let rowToFormat =
 					rowObjects[
-						target
-							.closest('.row-format')
-							.id.substring(target.closest('.row-format').id.indexOf('-') + 1)
+						rowObjects.findIndex(
+							obj => Number.parseInt(obj.id) === Number.parseInt(rowToFormatID)
+						)
 					];
+
 				document.getElementById('color-panel').remove();
 				rowToFormat.color = chosenTagColor;
 				db.collection('dailyChecking').doc(userUID).update({
@@ -819,6 +844,13 @@ const updateCounterAndOptions = event => {
 			});
 	}
 };
+
+//Added another eventlistener due to DOM Event delegation
+checkRows.addEventListener('click', updateCounterAndOptions);
+checkRows.addEventListener('keyup', updateCounterAndOptions);
+checkRows.addEventListener('mouseover', updateCounterAndOptions);
+checkRows.addEventListener('mouseout', updateCounterAndOptions);
+checkRows.addEventListener('change', updateCounterAndOptions);
 
 const clearInputValues = event => {
 	if (
@@ -832,7 +864,31 @@ const clearInputValues = event => {
 	}
 };
 
+//using focusin over focus because it bubbles through the checkRows,
+//thus there is no need to assign multiple elements
+checkRows.addEventListener('focusin', clearInputValues);
+
 const moveRows = event => {
+	const removeAddedClasses = id => {
+		document.getElementById(id).classList.remove('move-rows-target-up');
+
+		// Solution to remove the added classes in cases of there being 10 rows, while some rows have an ID of 15 or 24,etc.
+		let iterations = 1;
+		let rowsViewed = 0;
+		while (rowsViewed < tableRows.length) {
+			if (document.getElementById('row-' + iterations)) {
+				document
+					.getElementById('row-' + iterations)
+					.classList.remove('move-rows-target-down');
+				rowsViewed++;
+			}
+			iterations++;
+		}
+
+		iterations = 1;
+		rowsViewed = 0;
+	};
+
 	if (event.type === 'dragstart') {
 		event.dataTransfer.setData('text', event.target.closest('.table-row').id);
 
@@ -895,16 +951,11 @@ const moveRows = event => {
 	} else if (event.type === 'drop' && event.target.id === 'temp-row') {
 		event.preventDefault();
 
-		let data = event.dataTransfer.getData('text');
-		document.getElementById(data).classList.remove('move-rows-target-up');
+		let id = event.dataTransfer.getData('text');
 
-		for (let i = 1; i <= tableRows.length; i++) {
-			document
-				.getElementById('row-' + i)
-				.classList.remove('move-rows-target-down');
-		}
+		removeAddedClasses(id);
 
-		event.target.before(document.getElementById(data));
+		event.target.before(document.getElementById(id));
 		event.target.remove();
 		event.dataTransfer.clearData();
 
@@ -912,7 +963,7 @@ const moveRows = event => {
 
 		//=================================================================
 
-		// Following code re-apply IDs in ascending order
+		// Following code re-applies IDs in ascending order
 
 		//=================================================================
 
@@ -942,8 +993,8 @@ const moveRows = event => {
 				let rowObjects = doc.data().rowObjects;
 
 				for (let i = 0; i < tableRows.length; i++) {
-					rowObjects[i + 1].id = tableRows[i].id.substring(
-						tableRows[i].id.indexOf('-') + 1
+					rowObjects[i + 1].id = Number.parseInt(
+						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
 					);
 					rowObjects[i + 1].color =
 						tableRows[i].children[0].style.backgroundColor;
@@ -974,31 +1025,19 @@ const moveRows = event => {
 				console.error(error);
 			});
 	} else if (event.type === 'drop' && event.target.id !== 'temp-row') {
+		event.preventDefault();
+
+		let id = event.dataTransfer.getData('text');
+
+		removeAddedClasses(id);
+
 		if (document.getElementById('temp-row')) {
 			document.getElementById('temp-row').remove();
-
-			let data = event.dataTransfer.getData('text');
-			document.getElementById(data).classList.remove('move-rows-target-up');
-
-			for (let i = 1; i <= tableRows.length; i++) {
-				document
-					.getElementById('row-' + i)
-					.classList.remove('move-rows-target-down');
-			}
-			tableRows = document.querySelectorAll('.table-row');
 		}
+
+		tableRows = document.querySelectorAll('.table-row');
 	}
 };
-
-//Added another eventlistener due to DOM Event delegation
-checkRows.addEventListener('click', updateCounterAndOptions);
-checkRows.addEventListener('keyup', updateCounterAndOptions);
-checkRows.addEventListener('mouseover', updateCounterAndOptions);
-checkRows.addEventListener('mouseout', updateCounterAndOptions);
-checkRows.addEventListener('change', updateCounterAndOptions);
-//using focusin over focus because it bubbles through the checkRows,
-//thus there is no need to assign multiple elements
-checkRows.addEventListener('focusin', clearInputValues);
 
 document.body.addEventListener('dragstart', moveRows);
 document.body.addEventListener('dragenter', moveRows);

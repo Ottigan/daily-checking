@@ -84,7 +84,12 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 });
 
 logOutButton.addEventListener('click', function () {
-	auth.signOut().then(function () {});
+	auth
+		.signOut()
+		.then(() => {})
+		.catch(error => {
+			console.error(error);
+		});
 });
 
 addTableBtn.onclick = function () {
