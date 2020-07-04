@@ -459,9 +459,6 @@ const updateCounterAndOptions = event => {
 					let rowObjects = doc.data().rowObjects;
 					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
-					let indexOfSumbit = rowObjects.findIndex(
-						obj => Number.parseInt(obj.id) === Number.parseInt(target.id)
-					);
 
 					rowObjects.forEach(object => {
 						if (Number.parseInt(object.id) === Number.parseInt(target.id)) {
@@ -528,13 +525,22 @@ const updateCounterAndOptions = event => {
 						});
 				} else {
 					let rowObjects = doc.data().rowObjects;
-					let update = rowObjects[target.id];
+					let update =
+						rowObjects[
+							rowObjects.findIndex(
+								obj => Number.parseInt(obj.id) === Number.parseInt(target.id)
+							)
+						];
 					update.casino = casino;
 					update.name = tableName;
 					update.platform = platform;
 					update.counter = Number.parseInt(counter.innerHTML);
 					update.target = Number.parseInt(goal.value);
-					rowObjects[target.id] = update;
+					rowObjects[
+						rowObjects.findIndex(
+							obj => Number.parseInt(obj.id) === Number.parseInt(target.id)
+						)
+					] = update;
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
