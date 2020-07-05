@@ -14,7 +14,7 @@ body {
 
 @media screen and (min-width: 1690px) {
 	nav {
-		position: fixed;
+		position: relative;
 		top: 0px;
 		z-index: 1;
 		width: 100%;
@@ -194,6 +194,21 @@ body {
 		width: 766px;
 	}
 
+	#hidden-menu {
+		position: relative;
+		left: 248px;
+		bottom: 40px;
+		visibility: hidden;
+		width: 136px;
+		height: 30px;
+		padding: 3px;
+		border: 1px solid rgb(0, 0, 0);
+		border-radius: 3px;
+		box-shadow: 0 0 3px black;
+		background-color: rgb(255, 255, 255);
+		z-index: 2;
+	}
+
 	section form input[type='text'] {
 		border-radius: 2px;
 		text-indent: 2px;
@@ -216,7 +231,7 @@ body {
 
 @media screen and (max-width: 1689px) {
 	nav {
-		position: fixed;
+		position: relative;
 		top: 0px;
 		z-index: 1;
 		width: 100%;
@@ -432,6 +447,21 @@ body {
 		width: 751px;
 	}
 
+	#hidden-menu {
+		position: relative;
+		left: 239px;
+		bottom: 40px;
+		visibility: hidden;
+		width: 136px;
+		height: 30px;
+		padding: 3px;
+		border: 1px solid rgb(0, 0, 0);
+		border-radius: 3px;
+		box-shadow: 0 0 3px black;
+		background-color: rgb(255, 255, 255);
+		z-index: 2;
+	}
+
 	section form input[type='text'] {
 		border-radius: 2px;
 		text-indent: 2px;
@@ -520,21 +550,6 @@ form button:focus {
 .hidden-menu-container {
 	position: absolute;
 	visibility: hidden;
-}
-
-#hidden-menu {
-	position: relative;
-	left: 248px;
-	bottom: 40px;
-	visibility: hidden;
-	width: 136px;
-	height: 30px;
-	padding: 3px;
-	border: 1px solid rgb(0, 0, 0);
-	border-radius: 3px;
-	box-shadow: 0 0 3px black;
-	background-color: rgb(255, 255, 255);
-	z-index: 2;
 }
 
 #hidden-menu button {

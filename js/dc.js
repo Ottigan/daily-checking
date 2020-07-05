@@ -875,7 +875,7 @@ const clearInputValues = event => {
 checkRows.addEventListener('focusin', clearInputValues);
 
 const moveRows = event => {
-	const removeAddedClasses = id => {
+	const removeAddedClassesAndTempRow = id => {
 		document.getElementById(id).classList.remove('move-rows-target-up');
 
 		// Solution to remove the added classes in cases of there being 10 rows, while some rows have an ID of 15 or 24,etc.
@@ -893,6 +893,10 @@ const moveRows = event => {
 
 		iterations = 1;
 		rowsViewed = 0;
+
+		if (document.getElementById('temp-row')) {
+			document.getElementById('temp-row').remove();
+		}
 	};
 
 	if (event.type === 'dragstart') {
@@ -959,10 +963,10 @@ const moveRows = event => {
 
 		let id = event.dataTransfer.getData('text');
 
-		removeAddedClasses(id);
-
 		event.target.before(document.getElementById(id));
-		event.target.remove();
+
+		removeAddedClassesAndTempRow(id);
+
 		event.dataTransfer.clearData();
 
 		tableRows = document.querySelectorAll('.table-row');
@@ -1035,11 +1039,7 @@ const moveRows = event => {
 
 		let id = event.dataTransfer.getData('text');
 
-		removeAddedClasses(id);
-
-		if (document.getElementById('temp-row')) {
-			document.getElementById('temp-row').remove();
-		}
+		removeAddedClassesAndTempRow(id);
 
 		tableRows = document.querySelectorAll('.table-row');
 	}
