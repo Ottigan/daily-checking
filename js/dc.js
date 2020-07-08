@@ -285,7 +285,25 @@ longShift.onclick = () => {
 	allTargets = document.querySelectorAll('.target');
 	if (longShift.checked) {
 		for (let i = 1; i < allTargets.length; i++) {
-			allTargets[i].value++;
+			let targetValue = Number.parseInt(allTargets[i].value);
+
+			switch (targetValue) {
+				case 7:
+					allTargets[i].value = 11;
+					break;
+				case 3:
+					allTargets[i].value = 4;
+					break;
+				case 2:
+					allTargets[i].value = 3;
+					break;
+				case 1:
+					allTargets[i].value = 2;
+					break;
+				default:
+					break;
+			}
+			console.log(allTargets[i].value);
 		}
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
@@ -333,7 +351,24 @@ longShift.onclick = () => {
 			});
 	} else {
 		for (let i = 1; i < allTargets.length; i++) {
-			allTargets[i].value--;
+			let targetValue = Number.parseInt(allTargets[i].value);
+
+			switch (targetValue) {
+				case 11:
+					allTargets[i].value = 7;
+					break;
+				case 4:
+					allTargets[i].value = 3;
+					break;
+				case 3:
+					allTargets[i].value = 2;
+					break;
+				case 2:
+					allTargets[i].value = 1;
+					break;
+				default:
+					break;
+			}
 		}
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
