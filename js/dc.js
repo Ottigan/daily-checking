@@ -22,6 +22,7 @@ const styleSheet = document.getElementById('style'),
 	themeSwitch = document.querySelector('#switch'),
 	theBall = document.querySelector('.ball'),
 	checkRows = document.querySelector('#checkrows'),
+	longShift = document.querySelector('#long-shift'),
 	menuToggleBtn = document.querySelector('#menu-toggle'),
 	hiddenMenu = document.querySelector('#hidden-menu'),
 	overlay = document.querySelector('#overlay'),
@@ -29,7 +30,50 @@ const styleSheet = document.getElementById('style'),
 	gameTableNames = document.getElementById('names'),
 	casinoNames = document.getElementById('casinos'),
 	auth = firebase.auth(),
-	db = firebase.firestore();
+	db = firebase.firestore(),
+	updateTableRows = () => {
+		// getting the entire firestore array, because you can't update specific values in the cloud
+		db.collection('dailyChecking')
+			//changing the following userUID helps copying row state between users
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				let rowObjects = doc.data().rowObjects;
+				tableRows = document.querySelectorAll('.table-row');
+
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i + 1].id = Number.parseInt(
+						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
+					);
+					rowObjects[i + 1].color =
+						tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i + 1].name = tableRows[i][0].value;
+
+					rowObjects[i + 1].platform = tableRows[i][1].value;
+
+					rowObjects[i + 1].casino = tableRows[i][2].value;
+
+					rowObjects[i + 1].counter = Number.parseInt(
+						tableRows[i].children[4].innerHTML
+					);
+					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+				}
+
+				db.collection('dailyChecking')
+					.doc(userUID)
+					.update({
+						rowObjects: rowObjects,
+					})
+					.then(function () {})
+					.catch(function (error) {
+						console.error(error);
+					});
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	};
 
 let userUID;
 let tableRows;
@@ -105,6 +149,10 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 				let qa = doc.data().nickname[0];
 				let greeting = document.createElement('h6');
 
+				doc.data().shift === 'long'
+					? (longShift.checked = true)
+					: (longShift.checked = false);
+
 				greeting.innerText = `Welcome, ${qa}!`;
 				greeting.classList.add('greeting');
 				logOutButton.before(greeting);
@@ -135,6 +183,7 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 			.then(function (doc) {
 				if (doc.exists) {
 					let rowObjects = doc.data().rowObjects;
+
 					let i = 0;
 					do {
 						if (i === 0) {
@@ -182,7 +231,7 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 									rowObjects[i].id
 								}" type="number" class="drag target highlight-this" value="${
 								rowObjects[i].target || 1
-							}" maxlength="2" min="0" max="12" />
+							}" maxlength="2" min="0" max="99" />
 								<button id="${
 									rowObjects[i].id
 								}" class="drag submitButton highlight-this" type="button">
@@ -229,8 +278,117 @@ logOutButton.addEventListener('click', function () {
 		});
 });
 
+// Incrementing All counter values if users mark checkbox as CHECKED
+// CHECKED status is tracked in the user profile
+longShift.onclick = () => {
+	longShift.setAttribute('disabled', 'disabled');
+	allTargets = document.querySelectorAll('.target');
+	if (longShift.checked) {
+		for (let i = 1; i < allTargets.length; i++) {
+			allTargets[i].value++;
+		}
+		// getting the entire firestore array, because you can't update specific values in the cloud
+		db.collection('dailyChecking')
+			//changing the following userUID helps copying row state between users
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				let rowObjects = doc.data().rowObjects;
+				tableRows = document.querySelectorAll('.table-row');
+
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i + 1].id = Number.parseInt(
+						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
+					);
+					rowObjects[i + 1].color =
+						tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i + 1].name = tableRows[i][0].value;
+
+					rowObjects[i + 1].platform = tableRows[i][1].value;
+
+					rowObjects[i + 1].casino = tableRows[i][2].value;
+
+					rowObjects[i + 1].counter = Number.parseInt(
+						tableRows[i].children[4].innerHTML
+					);
+					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+				}
+
+				db.collection('dailyChecking')
+					.doc(userUID)
+					.update({
+						rowObjects: rowObjects,
+						shift: 'long',
+					})
+					.then(function () {
+						longShift.removeAttribute('disabled');
+					})
+					.catch(function (error) {
+						console.error(error);
+					});
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	} else {
+		for (let i = 1; i < allTargets.length; i++) {
+			allTargets[i].value--;
+		}
+		// getting the entire firestore array, because you can't update specific values in the cloud
+		db.collection('dailyChecking')
+			//changing the following userUID helps copying row state between users
+			.doc(userUID)
+			.get()
+			.then(function (doc) {
+				let rowObjects = doc.data().rowObjects;
+				tableRows = document.querySelectorAll('.table-row');
+
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i + 1].id = Number.parseInt(
+						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
+					);
+					rowObjects[i + 1].color =
+						tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i + 1].name = tableRows[i][0].value;
+
+					rowObjects[i + 1].platform = tableRows[i][1].value;
+
+					rowObjects[i + 1].casino = tableRows[i][2].value;
+
+					rowObjects[i + 1].counter = Number.parseInt(
+						tableRows[i].children[4].innerHTML
+					);
+					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+				}
+
+				db.collection('dailyChecking')
+					.doc(userUID)
+					.update({
+						rowObjects: rowObjects,
+						shift: 'short',
+					})
+					.then(function () {
+						longShift.removeAttribute('disabled');
+					})
+					.catch(function (error) {
+						console.error(error);
+					});
+			})
+			.catch(error => {
+				console.error(error);
+			});
+	}
+};
+
 function newToaster(text, type) {
+	if (document.querySelector('#toaster')) {
+		document.querySelector('#toaster').remove();
+	}
+
 	let toasterMessage = document.createElement('span');
+	toasterMessage.id = 'toaster';
 	toasterMessage.innerHTML = text;
 	if (type === 'success') {
 		toasterMessage.classList = 'successSubmitToaster';
@@ -361,6 +519,10 @@ const manipRows = event => {
 				console.error('Failed retrieving current rowObjects:', error);
 				target.removeAttribute('disabled');
 			});
+	} else if (target.innerHTML === 'Save') {
+		target.setAttribute('disabled', 'disabled');
+		updateTableRows();
+		target.removeAttribute('disabled');
 	}
 };
 
@@ -514,7 +676,6 @@ const updateCounterAndOptions = event => {
 								counter.classList.remove('valid');
 							}
 							newToaster('Added', 'success');
-							target.blur();
 							target.removeAttribute('disabled');
 						})
 						.catch(function (error) {
@@ -565,7 +726,7 @@ const updateCounterAndOptions = event => {
 				target.removeAttribute('disabled');
 				console.error(error);
 			});
-	} else if (target.id === 'save-button' && event.type === 'click') {
+	} else if (target.id === 'sort-button' && event.type === 'click') {
 		let newTableRowOrder = [];
 
 		//Copying each node of the original array with parameter of TRUE to copy ALL the children
@@ -809,7 +970,8 @@ const updateCounterAndOptions = event => {
 				'<div class="color-option option-five"></div><div class="color-option option-six"></div>' +
 				'<div class="color-option option-seven"></div><div class="color-option option-eight"></div>' +
 				'<div class="color-option option-nine"></div><div class="color-option option-ten"></div>' +
-				'<div class="color-option option-eleven"></div><div class="color-option option-twelve"></div>';
+				'<div class="color-option option-eleven"></div><div class="color-option option-twelve"></div>' +
+				'<input type="text" id="rgb-input" pattern="^[0-9,]$" maxlength="15" title="RGB format" placeholder="000,000,000"/>';
 
 			target.append(colorPanel);
 		}
@@ -818,6 +980,7 @@ const updateCounterAndOptions = event => {
 		event.type === 'click'
 	) {
 		chosenTagColor = window.getComputedStyle(target).backgroundColor;
+
 		target.closest('.row-format').style.backgroundColor = chosenTagColor;
 
 		//getting the entire firestore array, because you can't update specific values in the cloud
@@ -848,12 +1011,50 @@ const updateCounterAndOptions = event => {
 			.catch(error => {
 				console.error(error);
 			});
+	} else if (target.id === 'rgb-input' && event.type === 'keypress') {
+		if ((event.key >= 0 && event.key < 10) || event.key === ',') {
+			let currentRGB = target.value || '';
+			currentRGB + event.key;
+		} else if (event.key === 'Enter') {
+			chosenTagColor = `rgb(${target.value})`;
+			target.closest('.row-format').style.backgroundColor = chosenTagColor;
+			//getting the entire firestore array, because you can't update specific values in the cloud
+			db.collection('dailyChecking')
+				//changing the following userUID helps copying row state between users
+				.doc(userUID)
+				.get()
+				.then(function (doc) {
+					let rowObjects = doc.data().rowObjects;
+					let rowToFormatID = target
+						.closest('.row-format')
+						.id.substring(target.closest('.row-format').id.indexOf('-') + 1);
+					// Finding the index of the rowObject where the ID matches client side formatted rows ID
+					let rowToFormat =
+						rowObjects[
+							rowObjects.findIndex(
+								obj =>
+									Number.parseInt(obj.id) === Number.parseInt(rowToFormatID)
+							)
+						];
+					document.getElementById('color-panel').remove();
+					rowToFormat.color = chosenTagColor;
+					db.collection('dailyChecking').doc(userUID).update({
+						rowObjects: rowObjects,
+					});
+				})
+				.catch(error => {
+					console.error(error);
+				});
+		} else {
+			event.preventDefault();
+		}
 	}
 };
 
 //Added another eventlistener due to DOM Event delegation
 checkRows.addEventListener('click', updateCounterAndOptions);
 checkRows.addEventListener('keyup', updateCounterAndOptions);
+checkRows.addEventListener('keypress', updateCounterAndOptions);
 checkRows.addEventListener('mouseover', updateCounterAndOptions);
 checkRows.addEventListener('mouseout', updateCounterAndOptions);
 checkRows.addEventListener('change', updateCounterAndOptions);
@@ -994,46 +1195,7 @@ const moveRows = event => {
 
 		//=================================================================
 
-		// getting the entire firestore array, because you can't update specific values in the cloud
-		db.collection('dailyChecking')
-			//changing the following userUID helps copying row state between users
-			.doc(userUID)
-			.get()
-			.then(function (doc) {
-				let rowObjects = doc.data().rowObjects;
-
-				for (let i = 0; i < tableRows.length; i++) {
-					rowObjects[i + 1].id = Number.parseInt(
-						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
-					);
-					rowObjects[i + 1].color =
-						tableRows[i].children[0].style.backgroundColor;
-
-					rowObjects[i + 1].name = tableRows[i][0].value;
-
-					rowObjects[i + 1].platform = tableRows[i][1].value;
-
-					rowObjects[i + 1].casino = tableRows[i][2].value;
-
-					rowObjects[i + 1].counter = Number.parseInt(
-						tableRows[i].children[4].innerHTML
-					);
-					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
-				}
-
-				db.collection('dailyChecking')
-					.doc(userUID)
-					.update({
-						rowObjects: rowObjects,
-					})
-					.then(function () {})
-					.catch(function (error) {
-						console.error(error);
-					});
-			})
-			.catch(error => {
-				console.error(error);
-			});
+		updateTableRows();
 	} else if (event.type === 'drop' && event.target.id !== 'temp-row') {
 		event.preventDefault();
 
@@ -1087,7 +1249,7 @@ document.body.onclick = function () {
 		event.target.id !== 'menu-toggle' &&
 		event.target.id !== 'hidden-menu' &&
 		event.target.id !== 'reset-button' &&
-		event.target.id !== 'save-button' &&
+		event.target.id !== 'sort-button' &&
 		event.target.id !== 'undo-button'
 	) {
 		hiddenMenu.style.visibility = 'hidden';
@@ -1096,6 +1258,7 @@ document.body.onclick = function () {
 	if (
 		!event.target.classList.contains('row-format') &&
 		!event.target.classList.contains('color-option') &&
+		event.target.id !== 'rgb-input' &&
 		event.target.id !== 'color-panel' &&
 		document.getElementById('color-panel')
 	) {

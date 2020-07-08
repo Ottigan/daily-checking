@@ -79,8 +79,12 @@
 				</div>
 			</nav>
 		</header>
-		<section class="flex jc-c">
+		<section class="dc-section">
 			<div id="checkrows" class="flex vertical jc-c js-c ai-fe">
+				<div class="long-shift-container">
+					<label for="long-shift">M/N?</label>
+					<input id="long-shift" type="checkbox" />
+				</div>
 				<form id="main-row" action="" method="" class="flex jc-c ai-fe">
 					<div>
 						<label for="table-0">Game Table</label><br />
@@ -144,9 +148,7 @@
 					<div class="hidden-menu-container">
 						<div id="hidden-menu" class="flex ai-c jc-sb">
 							<button id="reset-button" type="button">Reset</button>
-							<button id="save-button" type="button">
-								Sort
-							</button>
+							<button id="sort-button" type="button">Sort</button>
 							<button id="undo-button" type="button">Undo</button>
 						</div>
 					</div>
@@ -155,9 +157,10 @@
 						Submit
 					</button>
 				</form>
-				<div id="row-manipulator" class="flex">
+				<div id="row-manipulator">
 					<button>Add</button>
 					<button>Remove</button>
+					<button class="save-button">Save</button>
 				</div>
 			</div>
 		</section>

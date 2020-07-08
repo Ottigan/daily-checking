@@ -492,12 +492,34 @@ header {
 	font-weight: 400;
 }
 
+.dc-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.long-shift-container {
+	display: flex;
+	width: 60px;
+	justify-content: space-between;
+	align-items: flex-end;
+	color: white;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 800;
+	font-size: 1rem;
+	line-height: 13px;
+}
+
+input[type='checkbox'] {
+	height: 13px;
+}
+
 form div {
 	padding-right: 6px;
 }
 
 form label {
-	color: rgb(211, 211, 211);
+	color: rgb(255, 255, 255);
 	font-family: 'Roboto', sans-serif;
 	font-weight: 800;
 }
@@ -566,19 +588,19 @@ form button:focus {
 	justify-content: center;
 	align-items: center;
 	position: fixed;
-	left: 40px;
+	left: 10px;
 	top: 70px;
 	height: 40px;
 	width: 90px;
 	z-index: 1;
-	background-color: rgb(0, 121, 0);
+	background-color: rgba(0, 121, 0, 0.8);
 	font-family: 'Roboto', sans-serif;
 	font-weight: 900;
 	font-size: large;
 	color: rgb(255, 255, 255);
-	border: 2px solid rgb(255, 255, 255);
-	box-shadow: 0 0 2px 1px rgb(255, 255, 255);
-	border-radius: 7px;
+	border: 1px solid var(--accent-color);
+	box-shadow: 0 0 2px 1px var(--accent-color);
+	border-radius: 2px;
 	animation: opacity 3s;
 }
 
@@ -587,19 +609,19 @@ form button:focus {
 	justify-content: center;
 	align-items: center;
 	position: fixed;
-	left: 40px;
+	left: 10px;
 	top: 70px;
 	height: 40px;
 	width: 90px;
 	z-index: 1;
-	background-color: rgb(75, 1, 1);
+	background-color: rgba(75, 1, 1, 0.8);
 	font-family: 'Roboto', sans-serif;
 	font-weight: 900;
 	font-size: large;
 	color: rgb(255, 255, 255);
-	border: 2px solid rgb(255, 255, 255);
-	box-shadow: 0 0 2px 1px rgb(255, 255, 255);
-	border-radius: 7px;
+	border: 1px solid var(--accent-color);
+	box-shadow: 0 0 2px 1px var(--accent-color);
+	border-radius: 2px;
 	animation: opacity 3s;
 }
 
@@ -613,8 +635,9 @@ form button:focus {
 }
 
 #row-manipulator {
+	display: flex;
 	width: 100%;
-	padding-left: 8px;
+	padding-left: 4px;
 	margin-top: 5px;
 	margin-bottom: 20px;
 }
@@ -627,9 +650,14 @@ form button:focus {
 	color: black !important;
 	border: 1px solid black;
 	border-radius: 3px;
-	margin-left: 2px;
+	margin-left: 6px;
 	padding: 0 3px;
 	height: 25px;
+}
+
+#row-manipulator .save-button {
+	width: 60px;
+	margin-left: auto;
 }
 
 .table-row {
@@ -658,15 +686,26 @@ form button:focus {
 	cursor: auto;
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-around;
-	align-content: space-around;
-	height: 80px;
+	justify-content: space-between;
+	align-content: space-between;
+	height: 100px;
 	width: 100px;
 	padding: 5px;
 	background-color: rgb(100, 100, 100);
 	border: 1px solid black;
 	box-shadow: 0 0 2px 1px black;
 	border-radius: 3px;
+}
+
+.row-format div #rgb-input[type='text'] {
+	width: 100%;
+	margin-right: auto;
+	background-color: rgb(255, 255, 255);
+	border: 1px solid black;
+	border-radius: 3px;
+	color: rgb(0, 0, 0);
+	text-align: center;
+	font-size: 0.9rem;
 }
 
 .color-option {
@@ -778,9 +817,9 @@ section form input[type='number'] {
 #checkrows form:nth-child(odd) button,
 tbody tr:nth-child(even) td,
 .l-decoration:nth-child(even) {
-	background-color: rgb(22, 22, 22);
-	color: rgb(170, 170, 170);
-	border: 1px solid rgb(63, 63, 63);
+	background-color: rgb(110, 110, 110);
+	color: rgb(0, 0, 0);
+	border: 1px solid rgb(59, 59, 59);
 }
 
 #checkrows form:nth-child(even) input,
@@ -788,9 +827,9 @@ tbody tr:nth-child(even) td,
 #checkrows form:nth-child(even) button,
 tbody tr:nth-child(odd) td,
 .l-decoration:nth-child(odd) {
-	background-color: rgb(110, 110, 110);
-	color: rgb(0, 0, 0);
-	border: 1px solid rgb(59, 59, 59);
+	background-color: rgb(22, 22, 22);
+	color: rgb(170, 170, 170);
+	border: 1px solid rgb(63, 63, 63);
 }
 
 #checkrows form span {
