@@ -31,13 +31,13 @@ const styleSheet = document.getElementById('style'),
 	casinoNames = document.getElementById('casinos'),
 	auth = firebase.auth(),
 	db = firebase.firestore(),
-	updateTableRows = () => {
+	updateTableRows = function () {
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				tableRows = document.querySelectorAll('.table-row');
 
@@ -65,14 +65,31 @@ const styleSheet = document.getElementById('style'),
 					.update({
 						rowObjects: rowObjects,
 					})
-					.then(function () {})
-					.catch(function (error) {
+					.then(() => {})
+					.catch(error => {
 						console.error(error);
 					});
 			})
 			.catch(error => {
 				console.error(error);
 			});
+	},
+	compareCountersToTargets = function () {
+		allCounters = document.querySelectorAll(`.counter`);
+		allTargets = document.querySelectorAll(`.target`);
+
+		for (let i = 1; i < allCounters.length; i++) {
+			let x = Number.parseInt(allCounters[i].innerHTML),
+				y = Number.parseInt(allTargets[i].value);
+
+			if (x >= y) {
+				allCounters[i].classList.add('valid');
+				allCounters[i].classList.remove('invalid');
+			} else {
+				allCounters[i].classList.add('invalid');
+				allCounters[i].classList.remove('valid');
+			}
+		}
 	};
 
 let userUID;
@@ -84,11 +101,17 @@ let tablesDB;
 let casinosDB;
 let inputElements = document.querySelectorAll('.inputElement');
 
-setInterval(() => {
+setInterval(function () {
 	let day = new Date().getDay();
 	let hours = new Date().getHours();
 	let minutes = new Date().getMinutes();
 	let seconds = new Date().getSeconds();
+	let alarmAlert = customText => {
+		audioAlarm.play();
+		setTimeout(() => {
+			alert(customText);
+		}, 1000);
+	};
 
 	if (
 		hours === 10 &&
@@ -96,48 +119,30 @@ setInterval(() => {
 		seconds === 0 &&
 		(day !== 6 || day !== 7)
 	) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert(
-				'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
-			);
-		}, 1000);
+		alarmAlert(
+			'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
+		);
 	} else if (
 		hours === 16 &&
 		minutes === 0 &&
 		seconds === 0 &&
 		(day !== 6 || day !== 7)
 	) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
-		}, 1000);
+		alarmAlert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
 	} else if (hours === 17 && minutes === 0 && seconds === 0) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert('Stop being a lazy ass and go check ITALIAN tables!');
-		}, 1000);
+		alarmAlert('Stop being a lazy ass and go check ITALIAN tables!');
 	} else if (hours === 18 && minutes === 0 && seconds === 0) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert('Go and check Fuuuufikon!');
-		}, 1000);
+		alarmAlert('Go and check Fuuuufikon!');
 	} else if (hours === 19 && minutes === 0 && seconds === 0) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert("The Brits are coming and BREXIT won't save us!");
-		}, 1000);
+		alarmAlert("The Brits are coming and BREXIT won't save us!");
 	} else if (hours === 22 && minutes === 0 && seconds === 0) {
-		audioAlarm.play();
-		setTimeout(() => {
-			alert(
-				"SIA BJ 1 and Payback should be ready! Fingers crossed that the Tricaster hasn't choked..."
-			);
-		}, 1000);
+		alarmAlert(
+			"SIA BJ 1 and Payback should be ready! Fingers crossed that the Tricaster hasn't choked..."
+		);
 	}
 }, 1000);
 
-firebase.auth().onAuthStateChanged(dailyCheckingUser => {
+firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 	if (dailyCheckingUser) {
 		//current user valid option: firebase.auth().currentUser.uid
 		userUID = dailyCheckingUser.uid;
@@ -145,10 +150,11 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 		db.collection('dailyChecking')
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let qa = doc.data().nickname[0];
 				let greeting = document.createElement('h6');
 
+				// Adjusting M/N checkbox to checked if the previous shift was marked as such
 				doc.data().shift === 'long'
 					? (longShift.checked = true)
 					: (longShift.checked = false);
@@ -157,30 +163,34 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 				greeting.classList.add('greeting');
 				logOutButton.before(greeting);
 			})
-			.catch(function (error) {
+			.catch(error => {
 				console.error(error);
 			});
 
 		db.collection('dailyChecking')
 			.doc('tables')
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				tablesDB = doc.data().names;
 			})
-			.catch(function (error) {});
+			.catch(error => {
+				console.error(error);
+			});
 
 		db.collection('dailyChecking')
 			.doc('casinos')
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				casinosDB = doc.data().names;
 			})
-			.catch(function (error) {});
+			.catch(error => {
+				console.error(error);
+			});
 
 		db.collection('dailyChecking')
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				if (doc.exists) {
 					let rowObjects = doc.data().rowObjects;
 
@@ -194,75 +204,84 @@ firebase.auth().onAuthStateChanged(dailyCheckingUser => {
 								rowObjects[i].casino;
 							document.querySelector(`#counter-${i}`).innerHTML =
 								rowObjects[i].counter;
-						} else if (i > 0) {
+						} else {
 							const rowItem = document.createElement('form');
 							rowItem.id = `row-${rowObjects[i].id}`;
 							rowItem.setAttribute('draggable', true);
-							rowItem.classList.add('flex', 'jc-c', 'table-row');
+							rowItem.classList.add('table-row');
 							rowItem.innerHTML = `
-								<div id="format-${
-									rowObjects[i].id
-								}" class="drag row-format" style="background-color: ${
-								rowObjects[i].color
-							}">
+								<div 
+									id="format-${rowObjects[i].id}" 
+									class="drag row-format" 
+									style="background-color: ${rowObjects[i].color}">
 								</div>
 								<div>
-									<input type="text" name="table" pattern="[a-zA-Z0-9 ]+" list="names" class="drag inputElement highlight-this table-name" autocomplete="off" id="table-${
-										rowObjects[i].id
-									}" value="${rowObjects[i].name}"/>
+									<input 
+										id="table-${rowObjects[i].id}" 
+										class="drag inputElement highlight-this table-name" 
+										type="text" 
+										name="table" 
+										pattern="[a-zA-Z0-9 ]+" 
+										list="names" 
+										autocomplete="off" 
+										value="${rowObjects[i].name}"
+									/>
 								</div>
 								<div>
-									<input id="platform-${
-										rowObjects[i].id
-									}" class="drag highlight-this platform-name" value="${
-								rowObjects[i].platform
-							}" name="platform" type="text" list="platforms" autocomplete="off"/>
+									<input 
+										id="platform-${rowObjects[i].id}" 
+										class="drag highlight-this platform-name" 
+										type="text"
+										value="${rowObjects[i].platform}" 
+										name="platform" 
+										list="platforms" 
+										autocomplete="off"
+									/>
 								</div>
 								<div>
-									<input type="text" name="casino" list="casinos" class="drag inputElement highlight-this casino-name" autocomplete="off" id="casino-${
-										rowObjects[i].id
-									}" value="${rowObjects[i].casino.toLowerCase()}"/>
+									<input 
+										id="casino-${rowObjects[i].id}" 
+										class="drag inputElement highlight-this casino-name" 
+										type="text" 
+										name="casino" 
+										list="casinos" 
+										autocomplete="off" 
+										value="${rowObjects[i].casino.toLowerCase()}"
+									/>
 								</div>
-								<span id="counter-${rowObjects[i].id}" class="drag counter highlight-this">${
-								rowObjects[i].counter || 0
-							}
+								<span 
+									id="counter-${rowObjects[i].id}" 
+									class="drag counter highlight-this">
+									${rowObjects[i].counter || 0}
 								</span>
-								<input id="target-${
-									rowObjects[i].id
-								}" type="number" class="drag target highlight-this" value="${
-								rowObjects[i].target || 1
-							}" maxlength="2" min="0" max="99" />
-								<button id="${
-									rowObjects[i].id
-								}" class="drag submitButton highlight-this" type="button">
+								<input 
+									id="target-${rowObjects[i].id}" 
+									class="drag target highlight-this" 
+									type="number" 
+									value="${rowObjects[i].target || 1}" 
+									maxlength="2" 
+									min="0" 
+									max="69" 
+								/>
+								<button 
+									id="${rowObjects[i].id}" 
+									class="drag submitButton highlight-this" 
+									type="button">
 									Submit
 								</button>`;
 							rowManip.before(rowItem);
 						}
 						i++;
-					} while (i <= rowObjects.length - 1);
+					} while (i < rowObjects.length);
+
 					inputElements = document.querySelectorAll('input');
 					tableRows = document.querySelectorAll('.table-row');
 
-					let counter = document.querySelectorAll(`.counter`),
-						goal = document.querySelectorAll(`.target`);
-
-					for (let i = 0; i < counter.length; i++) {
-						let x = Number.parseInt(counter[i].innerHTML),
-							y = goal[i].value;
-
-						if (x >= y) {
-							counter[i].classList.add('valid');
-							counter[i].classList.remove('invalid');
-						} else {
-							counter[i].classList.add('invalid');
-							counter[i].classList.remove('valid');
-						}
-					}
+					compareCountersToTargets();
 				}
 			})
-			.catch(function (error) {
-				console.log('Error getting document:', error);
+			.catch(error => {
+				console.error(error);
 			});
 	} else {
 		window.location.replace('.');
@@ -280,37 +299,63 @@ logOutButton.addEventListener('click', function () {
 
 // Incrementing All counter values if users mark checkbox as CHECKED
 // CHECKED status is tracked in the user profile
-longShift.onclick = () => {
+longShift.onclick = function () {
 	longShift.setAttribute('disabled', 'disabled');
 	allTargets = document.querySelectorAll('.target');
-	if (longShift.checked) {
-		for (let i = 1; i < allTargets.length; i++) {
-			let targetValue = Number.parseInt(allTargets[i].value);
 
-			switch (targetValue) {
-				case 7:
-					allTargets[i].value = 11;
-					break;
-				case 3:
-					allTargets[i].value = 4;
-					break;
-				case 2:
-					allTargets[i].value = 3;
-					break;
-				case 1:
-					allTargets[i].value = 2;
-					break;
-				default:
-					break;
+	const incrementAllTargets = () => {
+			for (let i = 1; i < allTargets.length; i++) {
+				let targetValue = Number.parseInt(allTargets[i].value);
+
+				switch (targetValue) {
+					case 7:
+						allTargets[i].value = 11;
+						break;
+					case 3:
+						allTargets[i].value = 4;
+						break;
+					case 2:
+						allTargets[i].value = 3;
+						break;
+					case 1:
+						allTargets[i].value = 2;
+						break;
+					default:
+						break;
+				}
 			}
-			console.log(allTargets[i].value);
-		}
+		},
+		decrementAllTargets = () => {
+			for (let i = 1; i < allTargets.length; i++) {
+				let targetValue = Number.parseInt(allTargets[i].value);
+
+				switch (targetValue) {
+					case 11:
+						allTargets[i].value = 7;
+						break;
+					case 4:
+						allTargets[i].value = 3;
+						break;
+					case 3:
+						allTargets[i].value = 2;
+						break;
+					case 2:
+						allTargets[i].value = 1;
+						break;
+					default:
+						break;
+				}
+			}
+		};
+
+	if (longShift.checked) {
+		incrementAllTargets();
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				tableRows = document.querySelectorAll('.table-row');
 
@@ -339,43 +384,33 @@ longShift.onclick = () => {
 						rowObjects: rowObjects,
 						shift: 'long',
 					})
-					.then(function () {
+					.then(() => {
+						compareCountersToTargets();
 						longShift.removeAttribute('disabled');
 					})
-					.catch(function (error) {
+					.catch(error => {
 						console.error(error);
+						decrementAllTargets();
+						longShift.checked = false;
+						compareCountersToTargets();
+						longShift.removeAttribute('disabled');
 					});
 			})
 			.catch(error => {
 				console.error(error);
+				decrementAllTargets();
+				longShift.checked = false;
+				compareCountersToTargets();
+				longShift.removeAttribute('disabled');
 			});
 	} else {
-		for (let i = 1; i < allTargets.length; i++) {
-			let targetValue = Number.parseInt(allTargets[i].value);
-
-			switch (targetValue) {
-				case 11:
-					allTargets[i].value = 7;
-					break;
-				case 4:
-					allTargets[i].value = 3;
-					break;
-				case 3:
-					allTargets[i].value = 2;
-					break;
-				case 2:
-					allTargets[i].value = 1;
-					break;
-				default:
-					break;
-			}
-		}
+		decrementAllTargets();
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				tableRows = document.querySelectorAll('.table-row');
 
@@ -404,19 +439,29 @@ longShift.onclick = () => {
 						rowObjects: rowObjects,
 						shift: 'short',
 					})
-					.then(function () {
+					.then(() => {
+						compareCountersToTargets();
 						longShift.removeAttribute('disabled');
 					})
-					.catch(function (error) {
+					.catch(error => {
 						console.error(error);
+						incrementAllTargets();
+						longShift.checked = true;
+						compareCountersToTargets();
+						longShift.removeAttribute('disabled');
 					});
 			})
 			.catch(error => {
 				console.error(error);
+				incrementAllTargets();
+				longShift.checked = true;
+				compareCountersToTargets();
+				longShift.removeAttribute('disabled');
 			});
 	}
 };
 
+// Creating custom Toaster messages
 function newToaster(text, type) {
 	if (document.querySelector('#toaster')) {
 		document.querySelector('#toaster').remove();
@@ -441,7 +486,7 @@ function newToaster(text, type) {
 //Row addition and removal
 //Chaining promise requests from firestore to sync DB info with client info
 //During the promise chaining buttons are disabled, to avoid information desync
-const manipRows = event => {
+const manipRows = function (event) {
 	let target = event.target;
 	let row = target.parentElement.previousElementSibling;
 	if (target.innerHTML === 'Remove' && row.classList.contains('table-row')) {
@@ -449,7 +494,7 @@ const manipRows = event => {
 		db.collection('dailyChecking')
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				let deleteObject = rowObjects.find(
 					value =>
@@ -464,18 +509,18 @@ const manipRows = event => {
 								deleteObject
 							),
 						})
-						.then(function () {
+						.then(() => {
 							row.remove();
 							tableRows = document.querySelectorAll('.table-row');
 							target.removeAttribute('disabled');
 						})
-						.catch(function (error) {
+						.catch(error => {
 							console.error('Could not update user profile:', error);
 							target.removeAttribute('disabled');
 						});
 				}
 			})
-			.catch(function (error) {
+			.catch(error => {
 				console.error('Failed retrieving rowObjects:', error);
 				target.removeAttribute('disabled');
 			});
@@ -485,7 +530,7 @@ const manipRows = event => {
 		db.collection('dailyChecking')
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				let idArr = [];
 
@@ -510,22 +555,63 @@ const manipRows = event => {
 				const rowItem = document.createElement('form');
 				rowItem.id = `row-${id}`;
 				rowItem.setAttribute('draggable', true);
-				rowItem.classList.add('flex', 'jc-c', 'table-row');
-				rowItem.innerHTML = `<div id="format-${id}" class="drag row-format"></div>
-							<div>
-							<input id="table-${id}" class="drag inputElement highlight-this table-name" type="text" name="table" list="names" autocomplete="off" pattern="[a-zA-Z0-9]+"/>
-							</div>
-							<div>
-							<input id="platform-${id}" class="drag highlight-this platform-name" name="platform" type="text" list="platforms" autocomplete="off"/>
-							</div>
-							<div>
-							<input id="casino-${id}" class="drag inputElement highlight-this casino-name" type="text" name="casino"  list="casinos" autocomplete="off"/>
-							</div>
-							<span id="counter-${id}" class="drag counter highlight-this invalid">0</span>
-							<input id="target-${id}" class="drag target highlight-this" type="number" value="1" maxlength="2" min="0" max="12" />
-							<button id="${id}" class="drag submitButton highlight-this" type="button">
-							Submit
-							</button>`;
+				rowItem.classList.add('table-row');
+				rowItem.innerHTML = `
+				<div 
+					id="format-${id}" 
+					class="drag row-format">
+				</div>
+				<div>
+					<input 
+						id="table-${id}" 
+						class="drag inputElement highlight-this table-name" 
+						type="text" 
+						name="table" 
+						list="names" 
+						autocomplete="off" 
+						pattern="[a-zA-Z0-9]+"
+					/>
+				</div>
+				<div>
+					<input 
+						id="platform-${id}" 
+						class="drag highlight-this platform-name" 
+						name="platform" 
+						type="text" 
+						list="platforms" 
+						autocomplete="off"
+					/>
+				</div>
+				<div>
+					<input 
+						id="casino-${id}" 
+						class="drag inputElement highlight-this casino-name" 
+						type="text" 
+						name="casino"  
+						list="casinos" 
+						autocomplete="off"
+					/>
+				</div>
+				<span 
+					id="counter-${id}" 
+					class="drag counter highlight-this invalid">
+					0
+				</span>
+				<input 
+					id="target-${id}" 
+					class="drag target highlight-this" 
+					type="number" 
+					value="1" 
+					maxlength="2" 
+					min="0" 
+					max="12" 
+				/>
+				<button 
+					id="${id}" 
+					class="drag submitButton highlight-this" 
+					type="button">
+					Submit
+				</button>`;
 				rowManip.before(rowItem);
 				db.collection('dailyChecking')
 					.doc(userUID)
@@ -540,18 +626,17 @@ const manipRows = event => {
 							color: '',
 						}),
 					})
-					.then(function () {
-						console.log('Row successfully added!');
+					.then(() => {
 						tableRows = document.querySelectorAll('.table-row');
 						target.removeAttribute('disabled');
 					})
-					.catch(function (error) {
-						console.error('Error adding rowObject: ', error);
+					.catch(error => {
+						console.error(error);
 						target.removeAttribute('disabled');
 					});
 			})
-			.catch(function (error) {
-				console.error('Failed retrieving current rowObjects:', error);
+			.catch(error => {
+				console.error(error);
 				target.removeAttribute('disabled');
 			});
 	} else if (target.innerHTML === 'Save') {
@@ -563,7 +648,7 @@ const manipRows = event => {
 
 checkRows.addEventListener('click', manipRows);
 
-const updateCounterAndOptions = event => {
+const updateCounterAndOptions = function (event) {
 	let target = event.target;
 	//Logic to ignore mouse clicks due to them being undefined
 	let eventKey = event.key ? event.key : 0;
@@ -571,7 +656,8 @@ const updateCounterAndOptions = event => {
 	if (
 		eventKey !== 'Shift' &&
 		event.type !== 'mouseover' &&
-		event.type !== 'mouseout'
+		event.type !== 'mouseout' &&
+		event.type !== 'click'
 	) {
 		gameTableNames.innerHTML = '';
 		casinoNames.innerHTML = '';
@@ -651,7 +737,7 @@ const updateCounterAndOptions = event => {
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				if (tableName != '' && platform != '' && casino != '') {
 					let rowObjects = doc.data().rowObjects;
 					let persona = doc.data().nameSurname;
@@ -697,10 +783,11 @@ const updateCounterAndOptions = event => {
 								when: clientTime,
 							}),
 						})
-						.then(function () {
+						.then(() => {
 							let x = Number.parseInt(counter.innerHTML),
-								y = goal.value;
+								y = Number.parseInt(goal.value);
 							x++;
+
 							counter.innerHTML = x;
 
 							if (x >= y) {
@@ -710,14 +797,14 @@ const updateCounterAndOptions = event => {
 								counter.classList.add('invalid');
 								counter.classList.remove('valid');
 							}
-							newToaster('Added', 'success');
+							newToaster('Submitted', 'success');
 							target.removeAttribute('disabled');
 						})
-						.catch(function (error) {
+						.catch(error => {
+							console.error(error);
 							newToaster('Error', 'fail');
 							target.blur();
 							target.removeAttribute('disabled');
-							console.error(error);
 						});
 				} else {
 					let rowObjects = doc.data().rowObjects;
@@ -742,24 +829,24 @@ const updateCounterAndOptions = event => {
 						.update({
 							rowObjects: rowObjects,
 						})
-						.then(function () {
+						.then(() => {
 							newToaster('Updated', 'success');
 							target.blur();
 							target.removeAttribute('disabled');
 						})
-						.catch(function (error) {
+						.catch(error => {
+							console.error(error);
 							newToaster('Error', 'fail');
 							target.blur();
 							target.removeAttribute('disabled');
-							console.error(error);
 						});
 				}
 			})
 			.catch(error => {
+				console.error(error);
 				newToaster('Error', 'fail');
 				target.blur();
 				target.removeAttribute('disabled');
-				console.error(error);
 			});
 	} else if (target.id === 'sort-button' && event.type === 'click') {
 		let newTableRowOrder = [];
@@ -790,37 +877,23 @@ const updateCounterAndOptions = event => {
 			tableRows[i][2].id = newTableRowOrder[i][2].id;
 			tableRows[i][2].value = newTableRowOrder[i][2].value;
 			tableRows[i].children[4].id = newTableRowOrder[i].children[4].id;
-			tableRows[i].children[4].innerText =
-				newTableRowOrder[i].children[4].innerText;
+			tableRows[i].children[4].textContent =
+				newTableRowOrder[i].children[4].textContent;
 			tableRows[i][3].id = newTableRowOrder[i][3].id;
 			tableRows[i][3].value = newTableRowOrder[i][3].value;
 			tableRows[i][4].id = newTableRowOrder[i][4].id;
 		}
 
 		tableRows = document.querySelectorAll('.table-row');
-		allCounters = document.querySelectorAll('.counter');
-		allTargets = document.querySelectorAll('.target');
 
-		for (let i = 0; i < allCounters.length; i++) {
-			let counter = allCounters[i];
-			let x = Number.parseInt(allCounters[i].innerHTML);
-			let y = allTargets[i].value;
-
-			if (x >= y) {
-				counter.classList.add('valid');
-				counter.classList.remove('invalid');
-			} else {
-				counter.classList.add('invalid');
-				counter.classList.remove('valid');
-			}
-		}
+		compareCountersToTargets();
 
 		// getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 
 				for (let i = 0; i < tableRows.length; i++) {
@@ -847,10 +920,10 @@ const updateCounterAndOptions = event => {
 					.update({
 						rowObjects: rowObjects,
 					})
-					.then(function () {
+					.then(() => {
 						target.blur();
 					})
-					.catch(function (error) {
+					.catch(error => {
 						console.log(error);
 					});
 			})
@@ -863,7 +936,7 @@ const updateCounterAndOptions = event => {
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				let tracking = doc.data().tracking;
 				let time7daysAgo = new Date().getTime() / 1000 - 604800;
@@ -880,7 +953,7 @@ const updateCounterAndOptions = event => {
 						rowObjects: rowObjects,
 						tracking: newTracking,
 					})
-					.then(function () {
+					.then(() => {
 						document.querySelectorAll('.counter').forEach(counter => {
 							counter.innerHTML = 0;
 							counter.classList.remove('valid');
@@ -888,7 +961,7 @@ const updateCounterAndOptions = event => {
 							target.blur();
 						});
 					})
-					.catch(function (error) {
+					.catch(error => {
 						console.log(error);
 					});
 			})
@@ -902,7 +975,7 @@ const updateCounterAndOptions = event => {
 			goal = target;
 
 		let x = Number.parseInt(counter.innerHTML),
-			y = goal.value;
+			y = Number.parseInt(goal.value);
 
 		if (x >= y) {
 			counter.classList.add('valid');
@@ -926,7 +999,7 @@ const updateCounterAndOptions = event => {
 				//changing the following userUID helps copying row state between users
 				.doc(userUID)
 				.get()
-				.then(function (doc) {
+				.then(doc => {
 					let rowObjects = doc.data().rowObjects;
 					let tracking = doc.data().tracking;
 					let lastTracked = tracking.pop();
@@ -939,14 +1012,16 @@ const updateCounterAndOptions = event => {
 						)
 					].counter--;
 
-					//updating row counter value in the DB
+					// Updating row counter value in the DB
+					// and
+					// Updating tracking array
 					db.collection('dailyChecking')
 						.doc(userUID)
 						.update({
 							rowObjects: rowObjects,
 							tracking: tracking,
 						})
-						.then(function () {
+						.then(() => {
 							let matchedCounter = document.getElementById(
 								`counter-${lastTracked.id}`
 							);
@@ -958,7 +1033,7 @@ const updateCounterAndOptions = event => {
 
 							if (
 								Number.parseInt(matchedCounter.innerHTML) >=
-								matchedCountersTarget.value
+								Number.parseInt(matchedCountersTarget.value)
 							) {
 								matchedCounter.classList.add('valid');
 								matchedCounter.classList.remove('invalid');
@@ -971,15 +1046,15 @@ const updateCounterAndOptions = event => {
 							target.removeAttribute('disabled');
 						})
 						.catch(error => {
+							console.error(error);
 							newToaster('Retry', 'fail');
 							target.removeAttribute('disabled');
-							console.error(error);
 						});
 				})
 				.catch(error => {
+					console.error(error);
 					newToaster('Retry', 'fail');
 					target.removeAttribute('disabled');
-					console.error(error);
 				});
 		} else {
 			newToaster('Invalid', 'fail');
@@ -998,7 +1073,6 @@ const updateCounterAndOptions = event => {
 			});
 			const colorPanel = document.createElement('div');
 			colorPanel.id = 'color-panel';
-			colorPanel.style.cssText = `position: absolute; right: 14px; bottom: 0px`;
 			colorPanel.innerHTML =
 				'<div class="color-option option-one"></div><div class="color-option option-two"></div>' +
 				'<div class="color-option option-three"></div><div class="color-option option-four"></div>' +
@@ -1023,7 +1097,7 @@ const updateCounterAndOptions = event => {
 			//changing the following userUID helps copying row state between users
 			.doc(userUID)
 			.get()
-			.then(function (doc) {
+			.then(doc => {
 				let rowObjects = doc.data().rowObjects;
 				let rowToFormatID = target
 					.closest('.row-format')
@@ -1039,14 +1113,21 @@ const updateCounterAndOptions = event => {
 
 				document.getElementById('color-panel').remove();
 				rowToFormat.color = chosenTagColor;
-				db.collection('dailyChecking').doc(userUID).update({
-					rowObjects: rowObjects,
-				});
+				db.collection('dailyChecking')
+					.doc(userUID)
+					.update({
+						rowObjects: rowObjects,
+					})
+					.then(() => {})
+					.catch(error => {
+						console.error(error);
+					});
 			})
 			.catch(error => {
 				console.error(error);
 			});
 	} else if (target.id === 'rgb-input' && event.type === 'keypress') {
+		// Allowing only numbers and comma for the rgb-input element with type="text"
 		if ((event.key >= 0 && event.key < 10) || event.key === ',') {
 			let currentRGB = target.value || '';
 			currentRGB + event.key;
@@ -1058,7 +1139,7 @@ const updateCounterAndOptions = event => {
 				//changing the following userUID helps copying row state between users
 				.doc(userUID)
 				.get()
-				.then(function (doc) {
+				.then(doc => {
 					let rowObjects = doc.data().rowObjects;
 					let rowToFormatID = target
 						.closest('.row-format')
@@ -1073,9 +1154,15 @@ const updateCounterAndOptions = event => {
 						];
 					document.getElementById('color-panel').remove();
 					rowToFormat.color = chosenTagColor;
-					db.collection('dailyChecking').doc(userUID).update({
-						rowObjects: rowObjects,
-					});
+					db.collection('dailyChecking')
+						.doc(userUID)
+						.update({
+							rowObjects: rowObjects,
+						})
+						.then(() => {})
+						.catch(error => {
+							console.error(error);
+						});
 				})
 				.catch(error => {
 					console.error(error);
@@ -1094,7 +1181,8 @@ checkRows.addEventListener('mouseover', updateCounterAndOptions);
 checkRows.addEventListener('mouseout', updateCounterAndOptions);
 checkRows.addEventListener('change', updateCounterAndOptions);
 
-const clearInputValues = event => {
+// Clear contents of certain input elements whenever they are focus to improve UX
+const clearInputValues = function (event) {
 	if (
 		(event.target.classList.contains('platform-name') &&
 			event.target.id !== 'platform-0') ||
@@ -1110,9 +1198,9 @@ const clearInputValues = event => {
 //thus there is no need to assign multiple elements
 checkRows.addEventListener('focusin', clearInputValues);
 
-const moveRows = event => {
+const moveRows = function (event) {
 	const removeAddedClassesAndTempRow = id => {
-		document.getElementById(id).classList.remove('move-rows-target-up');
+		document.getElementById(id).classList.remove('move-rows-target-above');
 
 		// Solution to remove the added classes in cases of there being 10 rows, while some rows have an ID of 15 or 24,etc.
 		let iterations = 1;
@@ -1121,7 +1209,7 @@ const moveRows = event => {
 			if (document.getElementById('row-' + iterations)) {
 				document
 					.getElementById('row-' + iterations)
-					.classList.remove('move-rows-target-down');
+					.classList.remove('move-rows-target-below');
 				rowsViewed++;
 			}
 			iterations++;
@@ -1141,31 +1229,38 @@ const moveRows = event => {
 		let targetID = event.dataTransfer.getData('text');
 		let currentRowIndex;
 
-		document.getElementById(targetID).classList.add('move-rows-target-up');
+		// Adding a special class so dragenter event does not trigger on the element itself
+		document.getElementById(targetID).classList.add('move-rows-target-above');
 
+		// Locating dragged rows index in relation to other rows
 		for (let i = 0; i < tableRows.length; i++) {
 			if (tableRows[i].id === targetID) {
 				currentRowIndex = i;
 			}
 		}
 
+		/* 
+			Adding a class to all rows that are below dragged row,
+			class will cause the placeholder row to appear below 
+			the dragenter event target row 
+		*/
 		for (let i = currentRowIndex; i < tableRows.length - 1; i++) {
-			tableRows[i + 1].classList.add('move-rows-target-down');
+			tableRows[i + 1].classList.add('move-rows-target-below');
 		}
 	} else if (
 		event.type === 'dragenter' &&
 		event.target.classList.contains('drag') &&
 		!event.target
 			.closest('.table-row')
-			.classList.contains('move-rows-target-up')
+			.classList.contains('move-rows-target-above')
 	) {
-		let direction = 'up';
+		let placeholderLocation = 'above';
 
 		event.target
 			.closest('.table-row')
-			.classList.contains('move-rows-target-down')
-			? (direction = 'down')
-			: (direction = 'up');
+			.classList.contains('move-rows-target-below')
+			? (placeholderLocation = 'below')
+			: (placeholderLocation = 'above');
 
 		if (document.getElementById('temp-row')) {
 			document.getElementById('temp-row').remove();
@@ -1174,18 +1269,12 @@ const moveRows = event => {
 		let tempRow = document.createElement('div');
 		tempRow.id = 'temp-row';
 		tempRow.classList.add(event.target.id);
-		tempRow.style.width = '100%';
-		tempRow.style.height = '20px';
-		tempRow.style.backgroundColor = 'white';
-		tempRow.style.border = '1px dotted black';
-		tempRow.style.borderRadius = '3px';
-		tempRow.style.marginTop = '3px';
 
-		switch (direction) {
-			case 'up':
+		switch (placeholderLocation) {
+			case 'above':
 				event.target.closest('.table-row').before(tempRow);
 				break;
-			case 'down':
+			case 'below':
 				event.target.closest('.table-row').after(tempRow);
 				break;
 			default:
@@ -1207,29 +1296,6 @@ const moveRows = event => {
 
 		tableRows = document.querySelectorAll('.table-row');
 
-		//=================================================================
-
-		// Following code re-applies IDs in ascending order
-
-		//=================================================================
-
-		// //Re-assigning values to DOM elements
-		// for (let i = 0; i < tableRows.length; i++) {
-		// 	// DIVs and SPANs are not elements, thus need to be accessed through children
-		// 	tableRows[i].id = 'row-' + (i + 1);
-		// 	tableRows[i].children[0].id = 'format-' + (i + 1);
-		// 	tableRows[i][0].id = 'table-' + (i + 1);
-		// 	tableRows[i][1].id = 'platform-' + (i + 1);
-		// 	tableRows[i][2].id = 'casino-' + (i + 1);
-		// 	tableRows[i].children[4].id = 'counter-' + (i + 1);
-		// 	tableRows[i][3].id = 'target-' + (i + 1);
-		// 	tableRows[i][4].id = i + 1;
-		// }
-
-		// tableRows = document.querySelectorAll('.table-row');
-
-		//=================================================================
-
 		updateTableRows();
 	} else if (event.type === 'drop' && event.target.id !== 'temp-row') {
 		event.preventDefault();
@@ -1237,8 +1303,6 @@ const moveRows = event => {
 		let id = event.dataTransfer.getData('text');
 
 		removeAddedClassesAndTempRow(id);
-
-		tableRows = document.querySelectorAll('.table-row');
 	}
 };
 
@@ -1263,11 +1327,13 @@ themeToggle.onclick = function () {
 	if (themeSwitch.checked) {
 		theBall.style.transitionDuration = '0.2s';
 		styleSheet.href = 'css/light.css';
-		document.cookie = 'color-schema=css/light.css;max-age=695520‬';
+		document.cookie =
+			'color-schema=css/light.css;max-age=695520‬;secure;samesite=strict';
 	} else {
 		theBall.style.transitionDuration = '0.2s';
 		styleSheet.href = 'css/dark.css';
-		document.cookie = 'color-schema=css/dark.css;max-age=695520';
+		document.cookie =
+			'color-schema=css/dark.css;max-age=695520;secure;samesite=strict';
 	}
 };
 
