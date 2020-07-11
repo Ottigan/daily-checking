@@ -273,10 +273,12 @@ themeToggle.onclick = function () {
 	if (themeSwitch.checked) {
 		theBall.style.transitionDuration = '0.2s';
 		styleSheet.href = 'css/light.css';
-		document.cookie = 'color-schema=css/light.css;max-age=695520‬';
+		document.cookie =
+			'color-schema=css/light.css;max-age=695520‬;secure;samesite=strict';
 	} else {
 		theBall.style.transitionDuration = '0.2s';
 		styleSheet.href = 'css/dark.css';
-		document.cookie = 'color-schema=css/dark.css;max-age=695520';
+		document.cookie =
+			'color-schema=css/dark.css;max-age=695520;secure;samesite=strict';
 	}
 };

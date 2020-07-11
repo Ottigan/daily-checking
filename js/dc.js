@@ -113,21 +113,11 @@ setInterval(function () {
 		}, 1000);
 	};
 
-	if (
-		hours === 10 &&
-		minutes === 0 &&
-		seconds === 0 &&
-		(day !== 6 || day !== 7)
-	) {
+	if (hours === 10 && minutes === 0 && seconds === 0 && day < 6) {
 		alarmAlert(
 			'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
 		);
-	} else if (
-		hours === 16 &&
-		minutes === 0 &&
-		seconds === 0 &&
-		(day !== 6 || day !== 7)
-	) {
+	} else if (hours === 16 && minutes === 0 && seconds === 0 && day < 6) {
 		alarmAlert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
 	} else if (hours === 17 && minutes === 0 && seconds === 0) {
 		alarmAlert('Stop being a lazy ass and go check ITALIAN tables!');
@@ -653,6 +643,8 @@ const updateCounterAndOptions = function (event) {
 	//Logic to ignore mouse clicks due to them being undefined
 	let eventKey = event.key ? event.key : 0;
 
+	let optionArray = [];
+
 	if (
 		eventKey !== 'Shift' &&
 		event.type !== 'mouseover' &&
@@ -661,38 +653,6 @@ const updateCounterAndOptions = function (event) {
 	) {
 		gameTableNames.innerHTML = '';
 		casinoNames.innerHTML = '';
-	}
-
-	if (
-		(target.classList.contains('inputElement') &&
-			event.type === 'keyup' &&
-			eventKey.length === 1) ||
-		eventKey === 'Backspace'
-	) {
-		gameTableNames.innerHTML = '';
-		tablesDB.forEach(value => {
-			if (
-				gameTableNames.childElementCount <= 10 &&
-				value.toLowerCase().includes(target.value.toLowerCase())
-			) {
-				let namesOptionItem = document.createElement('option');
-				namesOptionItem.value = value;
-
-				gameTableNames.append(namesOptionItem);
-			}
-		});
-		casinoNames.innerHTML = '';
-		casinosDB.forEach(value => {
-			if (
-				casinoNames.childElementCount <= 10 &&
-				value.toLowerCase().includes(target.value.toLowerCase())
-			) {
-				let casinosOptionItem = document.createElement('option');
-				casinosOptionItem.value = value;
-
-				casinoNames.append(casinosOptionItem);
-			}
-		});
 	}
 
 	if (target.classList.contains('highlight-this')) {
@@ -723,7 +683,102 @@ const updateCounterAndOptions = function (event) {
 		}
 	}
 
-	if (target.classList.contains('submitButton') && event.type === 'click') {
+	if (
+		(target.name === 'table' &&
+			event.type === 'keyup' &&
+			eventKey.length === 1) ||
+		(target.name === 'table' && eventKey === 'Backspace')
+	) {
+		gameTableNames.innerHTML = '';
+		tablesDB.forEach(value => {
+			if (
+				optionArray.length < 10 &&
+				value.toLowerCase().startsWith(target.value.toLowerCase())
+			) {
+				optionArray.push(value);
+			}
+		});
+
+		optionArray.sort((a, b) => {
+			let nameA = a.toUpperCase();
+			let nameB = b.toUpperCase();
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+
+			return 0;
+		});
+
+		tablesDB.forEach(value => {
+			if (
+				optionArray.length < 10 &&
+				value.toLowerCase().includes(target.value.toLowerCase())
+			) {
+				if (!optionArray.includes(value)) {
+					optionArray.push(value);
+				}
+			}
+		});
+
+		optionArray.forEach(option => {
+			let namesOptionItem = document.createElement('option');
+			namesOptionItem.value = option;
+
+			gameTableNames.append(namesOptionItem);
+		});
+	} else if (
+		(target.name === 'casino' &&
+			event.type === 'keyup' &&
+			eventKey.length === 1) ||
+		(target.name === 'casino' && eventKey === 'Backspace')
+	) {
+		casinoNames.innerHTML = '';
+		casinosDB.forEach(value => {
+			if (
+				optionArray.length < 10 &&
+				value.toLowerCase().startsWith(target.value.toLowerCase())
+			) {
+				optionArray.push(value);
+			}
+		});
+
+		optionArray.sort((a, b) => {
+			let nameA = a.toUpperCase();
+			let nameB = b.toUpperCase();
+			if (nameA < nameB) {
+				return -1;
+			}
+			if (nameA > nameB) {
+				return 1;
+			}
+
+			return 0;
+		});
+
+		casinosDB.forEach(value => {
+			if (
+				optionArray.length < 10 &&
+				value.toLowerCase().includes(target.value.toLowerCase())
+			) {
+				if (!optionArray.includes(value)) {
+					optionArray.push(value);
+				}
+			}
+		});
+
+		optionArray.forEach(option => {
+			let casinosOptionItem = document.createElement('option');
+			casinosOptionItem.value = option;
+
+			casinoNames.append(casinosOptionItem);
+		});
+	} else if (
+		target.classList.contains('submitButton') &&
+		event.type === 'click'
+	) {
 		target.setAttribute('disabled', 'disabled');
 
 		let tableName = document.querySelector(`#table-${target.id}`).value,
