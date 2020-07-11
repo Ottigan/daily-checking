@@ -83,8 +83,7 @@ const styleSheet = document.getElementById('style'),
 							);
 							let timeToString = date + ' ' + time;
 
-							// added 10800 seconds to adjust for GMT+3
-							let objectSeconds = object.when.seconds + 10800;
+							let objectSeconds = object.when.seconds;
 							let fromSeconds =
 								Date.parse(trackingFrom.value) / 1000 ||
 								new Date().setDate(new Date().getDate() - 1) / 1000;
