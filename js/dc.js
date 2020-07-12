@@ -58,17 +58,15 @@ const styleSheet = document.getElementById('style'),
 						tableRows[i].children[4].innerHTML
 					);
 					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+					rowObjects[i + 1].timestamp = tableRows[i].children[7].textContent;
 				}
 
-				db.collection('dailyChecking')
-					.doc(userUID)
-					.update({
-						rowObjects: rowObjects,
-					})
-					.then(() => {})
-					.catch(error => {
-						console.error(error);
-					});
+				return rowObjects;
+			})
+			.then(rowObjects => {
+				db.collection('dailyChecking').doc(userUID).update({
+					rowObjects: rowObjects,
+				});
 			})
 			.catch(error => {
 				console.error(error);
@@ -102,6 +100,7 @@ let casinosDB;
 let inputElements = document.querySelectorAll('.inputElement');
 
 setInterval(function () {
+	// getDay() - Sunday - Saturday : 0 - 6
 	let day = new Date().getDay();
 	let hours = new Date().getHours();
 	let minutes = new Date().getMinutes();
@@ -110,14 +109,21 @@ setInterval(function () {
 		audioAlarm.play();
 		setTimeout(() => {
 			alert(customText);
+			audioAlarm.pause();
 		}, 1000);
 	};
 
-	if (hours === 10 && minutes === 0 && seconds === 0 && day < 6) {
+	if (hours === 10 && minutes === 0 && seconds === 0 && day > 0 && day < 6) {
 		alarmAlert(
 			'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
 		);
-	} else if (hours === 16 && minutes === 0 && seconds === 0 && day < 6) {
+	} else if (
+		hours === 16 &&
+		minutes === 0 &&
+		seconds === 0 &&
+		day > 0 &&
+		day < 6
+	) {
 		alarmAlert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
 	} else if (hours === 17 && minutes === 0 && seconds === 0) {
 		alarmAlert('Stop being a lazy ass and go check ITALIAN tables!');
@@ -258,7 +264,12 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 									class="drag submitButton highlight-this" 
 									type="button">
 									Submit
-								</button>`;
+								</button>
+								<span
+									id="timestamp-${rowObjects[i].id}"
+									class="drag timestamp highlight-this">
+									 ${rowObjects[i].timestamp || ''}
+								</span>`;
 							rowManip.before(rowItem);
 						}
 						i++;
@@ -559,7 +570,7 @@ const manipRows = function (event) {
 						name="table" 
 						list="names" 
 						autocomplete="off" 
-						pattern="[a-zA-Z0-9]+"
+						pattern="[a-zA-Z0-9 /]+"
 					/>
 				</div>
 				<div>
@@ -663,7 +674,8 @@ const updateCounterAndOptions = function (event) {
 			counter = document.querySelector(`#counter-${indexID}`) || menuToggleBtn,
 			targetNumber =
 				document.querySelector(`#target-${indexID}`) || menuToggleBtn,
-			submitButton = document.getElementById(`${indexID}`);
+			submitButton = document.getElementById(`${indexID}`),
+			timestamp = document.getElementById(`timestamp-${indexID}`);
 
 		if (event.type === 'mouseover') {
 			tableName.classList.add('highlighted-row');
@@ -673,6 +685,7 @@ const updateCounterAndOptions = function (event) {
 			counter.classList.add('highlighted-row');
 			targetNumber.classList.add('highlighted-row');
 			submitButton.classList.add('highlighted-row');
+			timestamp.classList.add('highlighted-row');
 		} else if (event.type === 'mouseout' || event.type === 'click') {
 			tableName.classList.remove('highlighted-row');
 			platform.classList.remove('highlighted-row');
@@ -680,6 +693,7 @@ const updateCounterAndOptions = function (event) {
 			counter.classList.remove('highlighted-row');
 			targetNumber.classList.remove('highlighted-row');
 			submitButton.classList.remove('highlighted-row');
+			timestamp.classList.remove('highlighted-row');
 		}
 	}
 
@@ -785,7 +799,8 @@ const updateCounterAndOptions = function (event) {
 			platform = document.querySelector(`#platform-${target.id}`).value,
 			casino = document.querySelector(`#casino-${target.id}`).value,
 			counter = document.querySelector(`#counter-${target.id}`),
-			goal = document.querySelector(`#target-${target.id}`);
+			goal = document.querySelector(`#target-${target.id}`),
+			timestampEle = document.querySelector(`#timestamp-${target.id}`);
 
 		//getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
@@ -797,6 +812,9 @@ const updateCounterAndOptions = function (event) {
 					let rowObjects = doc.data().rowObjects;
 					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
+					let timestamp = new Date()
+						.toTimeString()
+						.substring(0, new Date().toTimeString().indexOf(' '));
 
 					rowObjects.forEach(object => {
 						if (Number.parseInt(object.id) === Number.parseInt(target.id)) {
@@ -823,6 +841,8 @@ const updateCounterAndOptions = function (event) {
 							object.target = Number.parseInt(
 								document.getElementById(`target-${object.id}`).value
 							);
+
+							object.timestamp = timestamp.substring(0, timestamp.length - 3);
 						}
 					});
 					db.collection('dailyChecking')
@@ -852,6 +872,12 @@ const updateCounterAndOptions = function (event) {
 								counter.classList.add('invalid');
 								counter.classList.remove('valid');
 							}
+
+							timestampEle.innerHTML = timestamp.substring(
+								0,
+								timestamp.length - 3
+							);
+
 							newToaster('Submitted', 'success');
 							target.removeAttribute('disabled');
 						})
@@ -937,6 +963,9 @@ const updateCounterAndOptions = function (event) {
 			tableRows[i][3].id = newTableRowOrder[i][3].id;
 			tableRows[i][3].value = newTableRowOrder[i][3].value;
 			tableRows[i][4].id = newTableRowOrder[i][4].id;
+			tableRows[i].children[7].id = newTableRowOrder[i].children[7].id;
+			tableRows[i].children[7].textContent =
+				newTableRowOrder[i].children[7].textContent;
 		}
 
 		tableRows = document.querySelectorAll('.table-row');
@@ -968,6 +997,7 @@ const updateCounterAndOptions = function (event) {
 						tableRows[i].children[4].innerHTML
 					);
 					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
+					rowObjects[i + 1].timestamp = tableRows[i].children[7].innerHTML;
 				}
 
 				db.collection('dailyChecking')
@@ -1001,6 +1031,7 @@ const updateCounterAndOptions = function (event) {
 
 				rowObjects.forEach(object => {
 					object.counter = 0;
+					object.timestamp = '';
 				});
 				db.collection('dailyChecking')
 					.doc(userUID)
@@ -1013,8 +1044,11 @@ const updateCounterAndOptions = function (event) {
 							counter.innerHTML = 0;
 							counter.classList.remove('valid');
 							counter.classList.add('invalid');
-							target.blur();
 						});
+						document.querySelectorAll('.timestamp').forEach(timestamp => {
+							timestamp.innerHTML = '';
+						});
+						target.blur();
 					})
 					.catch(error => {
 						console.log(error);
@@ -1168,15 +1202,12 @@ const updateCounterAndOptions = function (event) {
 
 				document.getElementById('color-panel').remove();
 				rowToFormat.color = chosenTagColor;
-				db.collection('dailyChecking')
-					.doc(userUID)
-					.update({
-						rowObjects: rowObjects,
-					})
-					.then(() => {})
-					.catch(error => {
-						console.error(error);
-					});
+				return rowObjects;
+			})
+			.then(rowObjects => {
+				db.collection('dailyChecking').doc(userUID).update({
+					rowObjects: rowObjects,
+				});
 			})
 			.catch(error => {
 				console.error(error);
@@ -1209,15 +1240,13 @@ const updateCounterAndOptions = function (event) {
 						];
 					document.getElementById('color-panel').remove();
 					rowToFormat.color = chosenTagColor;
-					db.collection('dailyChecking')
-						.doc(userUID)
-						.update({
-							rowObjects: rowObjects,
-						})
-						.then(() => {})
-						.catch(error => {
-							console.error(error);
-						});
+
+					return rowObjects;
+				})
+				.then(rowObjects => {
+					db.collection('dailyChecking').doc(userUID).update({
+						rowObjects: rowObjects,
+					});
 				})
 				.catch(error => {
 					console.error(error);

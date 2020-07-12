@@ -81,6 +81,7 @@ const styleSheet = document.getElementById('style'),
 								timeISO.indexOf('T') + 1,
 								timeISO.indexOf('.')
 							);
+
 							let timeToString = date + ' ' + time;
 
 							let objectSeconds = object.when.seconds;

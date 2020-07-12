@@ -535,21 +535,21 @@ form label {
 	color: rgb(39, 39, 39);
 }
 
-form input:hover,
-form button:hover {
-	box-shadow: 0 0 2px 1px var(--accent-color) !important;
+#checkrows #main-row input:hover {
+	box-shadow: 0 0 2px 1px var(--accent-color);
+}
+
+#checkrows #main-row input:focus {
+	outline: none;
+	border: 2px solid black;
+	box-shadow: 0 0 0px 1px inset var(--accent-color);
 }
 
 form input:focus,
 form button:focus {
 	outline: none;
 	border: 1px solid rgb(0, 0, 0);
-	box-shadow: 0 0 0px 1px rgb(0, 0, 0) !important;
-}
-
-form button:focus {
-	background-color: rgb(255, 255, 255) !important;
-	color: black !important;
+	box-shadow: 0 0 0px 1px rgb(0, 0, 0);
 }
 
 #overlay {
@@ -806,7 +806,7 @@ form button:focus {
 }
 
 #checkrows input,
-#checkrows span,
+#checkrows .counter,
 #checkrows button {
 	font-family: 'Roboto', sans-serif;
 	font-weight: 600;
@@ -842,8 +842,35 @@ section form input[type='number'] {
 	margin-left: 3px;
 }
 
+.highlight-this {
+	border-radius: 2px;
+	height: 20px;
+	border: 1px solid black;
+}
+
+.timestamp {
+	display: flex;
+	position: absolute;
+	right: -56px;
+	height: 20px;
+	width: 50px;
+	justify-content: center;
+	align-items: center;
+	font-family: 'Roboto', sans-serif;
+	font-size: 14px;
+	font-weight: 300;
+	color: rgb(0, 0, 0);
+	background-color: rgb(255, 255, 255);
+	border: 1px inset;
+	box-shadow: 0 0 1px inset rgb(0, 0, 0);
+}
+
+.highlighted-row {
+	box-shadow: 0 0 2px 1px var(--accent-color);
+}
+
 #checkrows form:nth-child(odd) input,
-#checkrows form:nth-child(odd) span,
+#checkrows form:nth-child(odd) .counter,
 #checkrows form:nth-child(odd) button,
 tbody tr:nth-child(even) td,
 .l-decoration:nth-child(even) {
@@ -851,21 +878,15 @@ tbody tr:nth-child(even) td,
 }
 
 #checkrows form:nth-child(even) input,
-#checkrows form:nth-child(even) span,
+#checkrows form:nth-child(even) .counter,
 #checkrows form:nth-child(even) button,
 tbody tr:nth-child(odd) td,
 .l-decoration:nth-child(odd) {
 	background-color: rgb(255, 255, 255);
 }
 
-.highlight-this {
-	border-radius: 2px;
-	height: 20px;
-	border: 1px solid black;
-}
-
-.highlighted-row {
-	box-shadow: 0 0 2px 1px var(--accent-color);
+.dc-section #checkrows form .counter {
+	border: 1px solid rgb(148, 142, 142);
 }
 
 #db-body {

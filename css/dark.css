@@ -95,7 +95,7 @@ body {
 	}
 
 	#pop-out:hover {
-		fill: rgb(3, 220, 248);
+		fill: var(--accent-color);
 	}
 
 	#switch {
@@ -529,16 +529,21 @@ form label {
 	font-weight: 800;
 }
 
-form input:hover,
-form button:hover {
-	border: 1px solid var(--accent-color) !important;
-	box-shadow: 0 0 2px 1px var(--accent-color);
+#checkrows #main-row input:hover {
+	border: 1px solid var(--accent-color);
+	box-shadow: 0 0 2px 2px var(--accent-color);
+}
+
+#checkrows #main-row input:focus {
+	outline: none;
+	border: 1px solid black;
+	box-shadow: 0 0 2px 2px var(--accent-color);
 }
 
 form input:focus,
 form button:focus {
 	outline: none;
-	border: 1px solid black !important;
+	border: 1px solid black;
 	box-shadow: 0 0 2px 2px var(--accent-color);
 }
 
@@ -795,7 +800,7 @@ form button:focus {
 }
 
 #checkrows input,
-#checkrows span,
+#checkrows .counter,
 #checkrows button {
 	font-family: 'Roboto', sans-serif;
 	font-weight: 600;
@@ -831,8 +836,36 @@ section form input[type='number'] {
 	margin-left: 3px;
 }
 
+.highlight-this {
+	border-radius: 2px;
+	height: 20px;
+	border: 1px solid black;
+}
+
+.timestamp {
+	display: flex;
+	position: absolute;
+	right: -56px;
+	height: 20px;
+	width: 50px;
+	justify-content: center;
+	align-items: center;
+	font-family: 'Roboto', sans-serif;
+	font-size: 14px;
+	font-weight: 300;
+	color: rgb(233, 233, 233);
+	background-color: rgb(66, 66, 66);
+	border: 1px inset rgb(19, 19, 19);
+	box-shadow: 0 0 2px inset rgb(255, 255, 255);
+}
+
+.dc-section #checkrows .highlighted-row {
+	border: 1px solid var(--accent-color);
+	box-shadow: 0 0 2px 2px var(--accent-color);
+}
+
 #checkrows form:nth-child(odd) input,
-#checkrows form:nth-child(odd) span,
+#checkrows form:nth-child(odd) .counter,
 #checkrows form:nth-child(odd) button,
 tbody tr:nth-child(even) td,
 .l-decoration:nth-child(even) {
@@ -842,7 +875,7 @@ tbody tr:nth-child(even) td,
 }
 
 #checkrows form:nth-child(even) input,
-#checkrows form:nth-child(even) span,
+#checkrows form:nth-child(even) .counter,
 #checkrows form:nth-child(even) button,
 tbody tr:nth-child(odd) td,
 .l-decoration:nth-child(odd) {
@@ -851,20 +884,9 @@ tbody tr:nth-child(odd) td,
 	border: 1px solid rgb(63, 63, 63);
 }
 
-#checkrows form span {
-	color: rgb(201, 201, 201) !important;
-	border: 1px solid rgb(148, 142, 142) !important;
-}
-
-.highlight-this {
-	border-radius: 2px;
-	height: 20px;
-	border: 1px solid black;
-}
-
-.highlighted-row {
-	border: 1px solid var(--accent-color) !important;
-	box-shadow: 0 0 2px 1px var(--accent-color);
+.dc-section #checkrows form .counter {
+	color: rgb(201, 201, 201);
+	border: 1px solid rgb(148, 142, 142);
 }
 
 #db-body {
