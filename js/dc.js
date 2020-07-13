@@ -610,6 +610,8 @@ const manipRows = function (event) {
 					}
 				}
 
+				console.log(id);
+
 				const rowItem = document.createElement('form');
 				rowItem.id = `row-${id}`;
 				rowItem.setAttribute('draggable', true);
@@ -932,7 +934,10 @@ const updateCounterAndOptions = function (event) {
 								counter.classList.remove('valid');
 							}
 
-							timestamp.innerHTML = time.substring(0, time.length - 3);
+							// To ignore MAIN row, which does not have a timestamp field
+							if (timestamp) {
+								timestamp.innerHTML = time.substring(0, time.length - 3);
+							}
 
 							newToaster('Submitted', 'success');
 							target.blur();
