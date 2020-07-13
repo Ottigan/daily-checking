@@ -729,7 +729,7 @@ form button:focus {
 	border-radius: 3px;
 	color: rgb(0, 0, 0);
 	text-align: center;
-	font-size: 0.9rem;
+	font-size: 13px;
 }
 
 .color-option {
@@ -853,10 +853,10 @@ section form input[type='number'] {
 	font-family: 'Roboto', sans-serif;
 	font-size: 14px;
 	font-weight: 300;
-	color: rgb(233, 233, 233);
+	color: rgb(179, 179, 179);
 	background-color: rgb(66, 66, 66);
-	border: 1px inset rgb(19, 19, 19);
-	box-shadow: 0 0 2px inset rgb(255, 255, 255);
+	border: 1px inset rgb(51, 51, 51);
+	box-shadow: 0 0 1px inset rgb(255, 255, 255);
 }
 
 .dc-section #checkrows .highlighted-row {

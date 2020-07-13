@@ -58,7 +58,6 @@ const styleSheet = document.getElementById('style'),
 						tableRows[i].children[4].innerHTML
 					);
 					rowObjects[i + 1].target = Number.parseInt(tableRows[i][3].value);
-					rowObjects[i + 1].timestamp = tableRows[i].children[7].textContent;
 				}
 
 				return rowObjects;
@@ -88,9 +87,75 @@ const styleSheet = document.getElementById('style'),
 				allCounters[i].classList.remove('valid');
 			}
 		}
+	},
+	fetchLatestCheckTimestamps = function () {
+		// Following array is created to store corresponding table name and timestamp pairs
+		let gameTableArr = [];
+		tableRows.forEach(object => {
+			gameTableArr.push({
+				name: object[0].value,
+				timestamp: '',
+			});
+		});
+
+		//fetching data from all user profiles about the check performed
+		db.collection('dailyChecking')
+			.orderBy('tracking')
+			.get()
+			.then(function (data) {
+				data.forEach(function (doc) {
+					// doc.data() is never undefined for query doc snapshots
+					if (doc.data().hasOwnProperty('tracking')) {
+						// not possible to .concat an empty array
+						if (!dbTracking) {
+							dbTracking = doc.data().tracking;
+						} else {
+							dbTracking = dbTracking.concat(doc.data().tracking);
+						}
+					}
+				});
+
+				//Sorting in descending order the gathered check objects Newest => Oldest
+				dbTracking.sort((a, b) => b.when.seconds - a.when.seconds);
+
+				/* 
+							Assigning the first matching timestamp based on NAME 
+							if 
+							object.timestamp has not been assigned
+						*/
+				gameTableArr.forEach(object => {
+					for (let i = 0; i < dbTracking.length; i++) {
+						if (!object.timestamp && object.name === dbTracking[i].name) {
+							object.timestamp = dbTracking[i].when.seconds;
+						}
+					}
+				});
+
+				// Assigning timestamps to corresponding SPAN elements
+				for (let i = 0; i < tableRows.length; i++) {
+					let timeOfLastCheck = '';
+					if (gameTableArr[i].timestamp) {
+						timeOfLastCheck = new Date(
+							gameTableArr[i].timestamp * 1000
+						).toTimeString();
+					}
+
+					// Torturing the time string to achieve the format of HH:MM
+					tableRows[i].children[7].innerHTML = timeOfLastCheck
+						.substring(0, timeOfLastCheck.indexOf(' '))
+						.substring(
+							0,
+							timeOfLastCheck.substring(0, timeOfLastCheck.indexOf(' '))
+								.length - 3
+						);
+					gameTableArr[i].timestamp = '';
+				}
+			});
+		dbTracking = '';
 	};
 
 let userUID;
+let dbTracking = '';
 let tableRows;
 let chosenTagColor;
 let allCounters = document.querySelectorAll('.counter');
@@ -113,30 +178,22 @@ setInterval(function () {
 		}, 1000);
 	};
 
-	if (hours === 10 && minutes === 0 && seconds === 0 && day > 0 && day < 6) {
-		alarmAlert(
-			'Wake up! MNGs are ass... I get it, but Blackjack Lounge 4 should be OPEN!'
-		);
-	} else if (
-		hours === 16 &&
-		minutes === 0 &&
-		seconds === 0 &&
-		day > 0 &&
-		day < 6
-	) {
-		alarmAlert('Time for Blackjack Lounge 6 to rise from the ashes yet again!');
-	} else if (hours === 17 && minutes === 0 && seconds === 0) {
-		alarmAlert('Stop being a lazy ass and go check ITALIAN tables!');
-	} else if (hours === 18 && minutes === 0 && seconds === 0) {
-		alarmAlert('Go and check Fuuuufikon!');
-	} else if (hours === 19 && minutes === 0 && seconds === 0) {
-		alarmAlert("The Brits are coming and BREXIT won't save us!");
-	} else if (hours === 22 && minutes === 0 && seconds === 0) {
-		alarmAlert(
-			"SIA BJ 1 and Payback should be ready! Fingers crossed that the Tricaster hasn't choked..."
-		);
+	if (hours === 10 && minutes === 0 && day > 0 && day < 6) {
+		alarmAlert('Eww, you are working MNG?! Pff, go check Lounge 4!');
+	} else if (hours === 16 && minutes === 0 && day > 0 && day < 6) {
+		alarmAlert('Time to check the table with weird wallpaper!');
+	} else if (hours === 17 && minutes === 0) {
+		alarmAlert('Have you ever had an authentic Italian Pizza?');
+	} else if (hours === 18 && minutes === 0) {
+		alarmAlert('Reapeat after me: "FUUUUUfffikon!"');
+	} else if (hours === 19 && minutes === 0) {
+		alarmAlert('It is time to spy on the Britishes!');
+	} else if (hours === 22 && minutes === 0) {
+		alarmAlert('2 Tables 1 QA...');
 	}
-}, 1000);
+
+	fetchLatestCheckTimestamps();
+}, 60000);
 
 firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 	if (dailyCheckingUser) {
@@ -268,7 +325,6 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 								<span
 									id="timestamp-${rowObjects[i].id}"
 									class="drag timestamp highlight-this">
-									 ${rowObjects[i].timestamp || ''}
 								</span>`;
 							rowManip.before(rowItem);
 						}
@@ -279,6 +335,7 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 					tableRows = document.querySelectorAll('.table-row');
 
 					compareCountersToTargets();
+					fetchLatestCheckTimestamps();
 				}
 			})
 			.catch(error => {
@@ -612,7 +669,11 @@ const manipRows = function (event) {
 					class="drag submitButton highlight-this" 
 					type="button">
 					Submit
-				</button>`;
+				</button>
+				<span
+					id="timestamp-${id}"
+					class="drag timestamp highlight-this">
+				</span>`;
 				rowManip.before(rowItem);
 				db.collection('dailyChecking')
 					.doc(userUID)
@@ -800,7 +861,7 @@ const updateCounterAndOptions = function (event) {
 			casino = document.querySelector(`#casino-${target.id}`).value,
 			counter = document.querySelector(`#counter-${target.id}`),
 			goal = document.querySelector(`#target-${target.id}`),
-			timestampEle = document.querySelector(`#timestamp-${target.id}`);
+			timestamp = document.querySelector(`#timestamp-${target.id}`);
 
 		//getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
@@ -812,7 +873,7 @@ const updateCounterAndOptions = function (event) {
 					let rowObjects = doc.data().rowObjects;
 					let persona = doc.data().nameSurname;
 					let clientTime = new Date();
-					let timestamp = new Date()
+					let time = new Date()
 						.toTimeString()
 						.substring(0, new Date().toTimeString().indexOf(' '));
 
@@ -841,8 +902,6 @@ const updateCounterAndOptions = function (event) {
 							object.target = Number.parseInt(
 								document.getElementById(`target-${object.id}`).value
 							);
-
-							object.timestamp = timestamp.substring(0, timestamp.length - 3);
 						}
 					});
 					db.collection('dailyChecking')
@@ -873,12 +932,10 @@ const updateCounterAndOptions = function (event) {
 								counter.classList.remove('valid');
 							}
 
-							timestampEle.innerHTML = timestamp.substring(
-								0,
-								timestamp.length - 3
-							);
+							timestamp.innerHTML = time.substring(0, time.length - 3);
 
 							newToaster('Submitted', 'success');
+							target.blur();
 							target.removeAttribute('disabled');
 						})
 						.catch(error => {
@@ -1000,6 +1057,9 @@ const updateCounterAndOptions = function (event) {
 					rowObjects[i + 1].timestamp = tableRows[i].children[7].innerHTML;
 				}
 
+				return rowObjects;
+			})
+			.then(rowObjects => {
 				db.collection('dailyChecking')
 					.doc(userUID)
 					.update({
@@ -1007,9 +1067,6 @@ const updateCounterAndOptions = function (event) {
 					})
 					.then(() => {
 						target.blur();
-					})
-					.catch(error => {
-						console.log(error);
 					});
 			})
 			.catch(error => {
@@ -1031,13 +1088,15 @@ const updateCounterAndOptions = function (event) {
 
 				rowObjects.forEach(object => {
 					object.counter = 0;
-					object.timestamp = '';
 				});
+				return [rowObjects, newTracking];
+			})
+			.then(data => {
 				db.collection('dailyChecking')
 					.doc(userUID)
 					.update({
-						rowObjects: rowObjects,
-						tracking: newTracking,
+						rowObjects: data[0],
+						tracking: data[1],
 					})
 					.then(() => {
 						document.querySelectorAll('.counter').forEach(counter => {
@@ -1045,13 +1104,7 @@ const updateCounterAndOptions = function (event) {
 							counter.classList.remove('valid');
 							counter.classList.add('invalid');
 						});
-						document.querySelectorAll('.timestamp').forEach(timestamp => {
-							timestamp.innerHTML = '';
-						});
 						target.blur();
-					})
-					.catch(error => {
-						console.log(error);
 					});
 			})
 			.catch(error => {
@@ -1131,6 +1184,7 @@ const updateCounterAndOptions = function (event) {
 								matchedCounter.classList.remove('valid');
 							}
 
+							fetchLatestCheckTimestamps();
 							newToaster('Removed', 'success');
 							target.removeAttribute('disabled');
 						})
@@ -1153,6 +1207,8 @@ const updateCounterAndOptions = function (event) {
 		target.classList.contains('row-format') &&
 		event.type === 'click'
 	) {
+		let targetBgColor = target.style.backgroundColor;
+
 		// toggling the panel if it is already open
 		if (target.childNodes.length > 1) {
 			document.getElementById('color-panel').remove();
@@ -1162,14 +1218,16 @@ const updateCounterAndOptions = function (event) {
 			});
 			const colorPanel = document.createElement('div');
 			colorPanel.id = 'color-panel';
-			colorPanel.innerHTML =
-				'<div class="color-option option-one"></div><div class="color-option option-two"></div>' +
-				'<div class="color-option option-three"></div><div class="color-option option-four"></div>' +
-				'<div class="color-option option-five"></div><div class="color-option option-six"></div>' +
-				'<div class="color-option option-seven"></div><div class="color-option option-eight"></div>' +
-				'<div class="color-option option-nine"></div><div class="color-option option-ten"></div>' +
-				'<div class="color-option option-eleven"></div><div class="color-option option-twelve"></div>' +
-				'<input type="text" id="rgb-input" pattern="^[0-9,]$" maxlength="15" title="RGB format" placeholder="000,000,000"/>';
+			colorPanel.innerHTML = `<div class="color-option option-one"></div><div class="color-option option-two"></div>
+				<div class="color-option option-three"></div><div class="color-option option-four"></div>
+				<div class="color-option option-five"></div><div class="color-option option-six"></div>
+				<div class="color-option option-seven"></div><div class="color-option option-eight"></div>
+				<div class="color-option option-nine"></div><div class="color-option option-ten"></div>
+				<div class="color-option option-eleven"></div><div class="color-option option-twelve"></div>
+				<input type="text" id="rgb-input" pattern="^[0-9,]$" maxlength="15" title="RGB format" placeholder="${targetBgColor.substring(
+					targetBgColor.indexOf('(') + 1,
+					targetBgColor.length - 1
+				)}"/>`;
 
 			target.append(colorPanel);
 		}
