@@ -610,8 +610,6 @@ const manipRows = function (event) {
 					}
 				}
 
-				console.log(id);
-
 				const rowItem = document.createElement('form');
 				rowItem.id = `row-${id}`;
 				rowItem.setAttribute('draggable', true);
