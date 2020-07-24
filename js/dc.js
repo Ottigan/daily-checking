@@ -119,10 +119,9 @@ const styleSheet = document.getElementById('style'),
 				dbTracking.sort((a, b) => b.when.seconds - a.when.seconds);
 
 				/* 
-							Assigning the first matching timestamp based on NAME 
-							if 
-							object.timestamp has not been assigned
-						*/
+				Assigning the first matching timestamp based on NAME 
+				if 
+				object.timestamp has not been assigned*/
 				gameTableArr.forEach(object => {
 					for (let i = 0; i < dbTracking.length; i++) {
 						if (!object.timestamp && object.name === dbTracking[i].name) {
@@ -742,7 +741,6 @@ const updateCounterAndOptions = function (event) {
 			tableName.classList.add('highlighted-row');
 			platform.classList.add('highlighted-row');
 			casino.classList.add('highlighted-row');
-			counter.classList.add('highlighted-row');
 			counter.classList.add('highlighted-row');
 			targetNumber.classList.add('highlighted-row');
 			submitButton.classList.add('highlighted-row');
