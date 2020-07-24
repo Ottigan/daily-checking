@@ -20,12 +20,9 @@ const styleSheet = document.getElementById('style'),
 	themeToggle = document.querySelector('.theme-label'),
 	themeSwitch = document.querySelector('#switch'),
 	theBall = document.querySelector('.ball'),
-	checkRows = document.querySelector('#checkrows'),
-	menuToggleBtn = document.querySelector('#menu-toggle'),
-	hiddenMenu = document.querySelector('#hidden-menu'),
+	templateRows = document.querySelector('#templaterows'),
 	rowManip = document.querySelector('#row-manipulator'),
 	gameTableNames = document.getElementById('names'),
-	casinoNames = document.getElementById('casinos'),
 	auth = firebase.auth(),
 	db = firebase.firestore(),
 	updateTableRows = function () {
@@ -39,15 +36,14 @@ const styleSheet = document.getElementById('style'),
 				tableRows = document.querySelectorAll('.table-row');
 
 				for (let i = 0; i < tableRows.length; i++) {
-					rowObjects[i + 1].id = Number.parseInt(
+					rowObjects[i].id = Number.parseInt(
 						tableRows[i].id.substring(tableRows[i].id.indexOf('-') + 1)
 					);
-					rowObjects[i + 1].color =
-						tableRows[i].children[0].style.backgroundColor;
+					rowObjects[i].color = tableRows[i].children[0].style.backgroundColor;
 
-					rowObjects[i + 1].name = tableRows[i][0].value;
+					rowObjects[i].name = tableRows[i][0].value;
 
-					rowObjects[i + 1].target = Number.parseInt(tableRows[i][1].value);
+					rowObjects[i].target = Number.parseInt(tableRows[i][1].value);
 				}
 
 				return rowObjects;
@@ -65,9 +61,9 @@ const styleSheet = document.getElementById('style'),
 let userUID;
 let dbTracking = '';
 let tableRows;
+let chosenTagColor;
 let allTargets;
 let tablesDB;
-let casinosDB;
 let inputElements = document.querySelectorAll('.inputElement');
 
 firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
@@ -101,27 +97,15 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 			});
 
 		db.collection('dailyChecking')
-			.doc('casinos')
-			.get()
-			.then(doc => {
-				casinosDB = doc.data().names;
-			})
-			.catch(error => {
-				console.error(error);
-			});
-
-		db.collection('dailyChecking')
 			.doc('template')
 			.get()
 			.then(doc => {
 				if (doc.exists) {
 					let rowObjects = doc.data().templateItems;
 
-					let i = 0;
-					do {
-						if (i === 0) {
-							document.querySelector(`#table-${i}`).value = rowObjects[i].name;
-						} else {
+					if (rowObjects.length > 0) {
+						let i = 0;
+						do {
 							const rowItem = document.createElement('form');
 							rowItem.id = `row-${rowObjects[i].id}`;
 							rowItem.setAttribute('draggable', true);
@@ -148,7 +132,7 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 									id="target-${rowObjects[i].id}" 
 									class="drag target highlight-this" 
 									type="number" 
-									value="${rowObjects[i].target || 1}" 
+									value="${rowObjects[i].target}" 
 									maxlength="2" 
 									min="0" 
 									max="69" 
@@ -160,12 +144,13 @@ firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 									Save
 								</button>`;
 							rowManip.before(rowItem);
-						}
-						i++;
-					} while (i < rowObjects.length);
 
-					inputElements = document.querySelectorAll('input');
-					tableRows = document.querySelectorAll('.table-row');
+							i++;
+						} while (i < rowObjects.length);
+
+						inputElements = document.querySelectorAll('input');
+						tableRows = document.querySelectorAll('.table-row');
+					}
 				}
 			})
 			.catch(error => {
@@ -242,6 +227,8 @@ const manipRows = function (event) {
 							console.error('Could not update user profile:', error);
 							target.removeAttribute('disabled');
 						});
+				} else {
+					target.removeAttribute('disabled');
 				}
 			})
 			.catch(error => {
@@ -267,7 +254,7 @@ const manipRows = function (event) {
 				let id;
 
 				// Find lowest missing integer to be assigned as the new rows ID
-				for (let i = 1; i <= idArr.length; i++) {
+				for (let i = 0; i <= idArr.length; i++) {
 					if (idArr[i] !== i) {
 						id = i;
 						break;
@@ -335,14 +322,14 @@ const manipRows = function (event) {
 				console.error(error);
 				target.removeAttribute('disabled');
 			});
-	} else if (target.innerHTML === 'Save') {
+	} else if (target.classList.contains('save-button')) {
 		target.setAttribute('disabled', 'disabled');
 		updateTableRows();
 		target.removeAttribute('disabled');
 	}
 };
 
-checkRows.addEventListener('click', manipRows);
+templateRows.addEventListener('click', manipRows);
 
 const updateCounterAndOptions = function (event) {
 	let target = event.target;
@@ -358,19 +345,13 @@ const updateCounterAndOptions = function (event) {
 		event.type !== 'click'
 	) {
 		gameTableNames.innerHTML = '';
-		casinoNames.innerHTML = '';
 	}
 
 	if (target.classList.contains('highlight-this')) {
 		let indexID = target.id.substring(target.id.indexOf('-') + 1),
 			tableName = document.querySelector(`#table-${indexID}`),
-			platform = document.querySelector(`#platform-${indexID}`),
-			casino = document.querySelector(`#casino-${indexID}`),
-			counter = document.querySelector(`#counter-${indexID}`) || menuToggleBtn,
-			targetNumber =
-				document.querySelector(`#target-${indexID}`) || menuToggleBtn,
-			submitButton = document.getElementById(`${indexID}`),
-			timestamp = document.getElementById(`timestamp-${indexID}`);
+			targetNumber = document.querySelector(`#target-${indexID}`),
+			submitButton = document.getElementById(`${indexID}`);
 
 		if (event.type === 'mouseover') {
 			tableName.classList.add('highlighted-row');
@@ -429,6 +410,71 @@ const updateCounterAndOptions = function (event) {
 
 			gameTableNames.append(namesOptionItem);
 		});
+	} else if (target.id === 'sort-button' && event.type === 'click') {
+		let newTableRowOrder = [];
+
+		//Copying each node of the original array with parameter of TRUE to copy ALL the children
+		//This approach is used to deal with the deep reference issue, which can't be bypassed with
+		//Spread operator, Object.assign or JSON.parse(JSON.stringify())
+		for (let i = 0; i < tableRows.length; i++) {
+			newTableRowOrder.push(tableRows[i].cloneNode(true));
+		}
+
+		//sorting rows based on target value in a descending order
+		newTableRowOrder.sort(
+			(a, b) => Number.parseInt(b[1].value) - Number.parseInt(a[1].value)
+		);
+
+		//Re-assigning values to DOM elements
+		for (let i = 0; i < newTableRowOrder.length; i++) {
+			// DIVs and SPANs are not elements, thus need to be accessed through children
+			tableRows[i].id = newTableRowOrder[i].id;
+			tableRows[i].children[0].id = newTableRowOrder[i].children[0].id;
+			tableRows[i].children[0].style.backgroundColor =
+				newTableRowOrder[i].children[0].style.backgroundColor;
+			tableRows[i][0].id = newTableRowOrder[i][0].id;
+			tableRows[i][0].value = newTableRowOrder[i][0].value;
+			tableRows[i][1].id = newTableRowOrder[i][1].id;
+			tableRows[i][1].value = newTableRowOrder[i][1].value;
+			tableRows[i][2].id = newTableRowOrder[i][2].id;
+		}
+
+		tableRows = document.querySelectorAll('.table-row');
+
+		// getting the entire firestore array, because you can't update specific values in the cloud
+		db.collection('dailyChecking')
+			//changing the following userUID helps copying row state between users
+			.doc('template')
+			.get()
+			.then(doc => {
+				let rowObjects = doc.data().templateItems;
+
+				for (let i = 0; i < tableRows.length; i++) {
+					rowObjects[i].id = tableRows[i].id.substring(
+						tableRows[i].id.indexOf('-') + 1
+					);
+					rowObjects[i].color = tableRows[i].children[0].style.backgroundColor;
+
+					rowObjects[i].name = tableRows[i][0].value;
+
+					rowObjects[i].target = Number.parseInt(tableRows[i][1].value);
+				}
+
+				return rowObjects;
+			})
+			.then(rowObjects => {
+				db.collection('dailyChecking')
+					.doc('template')
+					.update({
+						templateItems: rowObjects,
+					})
+					.then(() => {
+						target.blur();
+					});
+			})
+			.catch(error => {
+				console.log(error);
+			});
 	} else if (
 		target.classList.contains('submitButton') &&
 		event.type === 'click'
@@ -475,6 +521,10 @@ const updateCounterAndOptions = function (event) {
 							target.blur();
 							target.removeAttribute('disabled');
 						});
+				} else {
+					newToaster('Empty', 'fail');
+					target.blur();
+					target.removeAttribute('disabled');
 				}
 			})
 			.catch(error => {
@@ -521,11 +571,10 @@ const updateCounterAndOptions = function (event) {
 
 		//getting the entire firestore array, because you can't update specific values in the cloud
 		db.collection('dailyChecking')
-			//changing the following userUID helps copying row state between users
-			.doc(userUID)
+			.doc('template')
 			.get()
 			.then(doc => {
-				let rowObjects = doc.data().rowObjects;
+				let rowObjects = doc.data().templateItems;
 				let rowToFormatID = target
 					.closest('.row-format')
 					.id.substring(target.closest('.row-format').id.indexOf('-') + 1);
@@ -543,8 +592,8 @@ const updateCounterAndOptions = function (event) {
 				return rowObjects;
 			})
 			.then(rowObjects => {
-				db.collection('dailyChecking').doc(userUID).update({
-					rowObjects: rowObjects,
+				db.collection('dailyChecking').doc('template').update({
+					templateItems: rowObjects,
 				});
 			})
 			.catch(error => {
@@ -560,11 +609,10 @@ const updateCounterAndOptions = function (event) {
 			target.closest('.row-format').style.backgroundColor = chosenTagColor;
 			//getting the entire firestore array, because you can't update specific values in the cloud
 			db.collection('dailyChecking')
-				//changing the following userUID helps copying row state between users
-				.doc(userUID)
+				.doc('template')
 				.get()
 				.then(doc => {
-					let rowObjects = doc.data().rowObjects;
+					let rowObjects = doc.data().templateItems;
 					let rowToFormatID = target
 						.closest('.row-format')
 						.id.substring(target.closest('.row-format').id.indexOf('-') + 1);
@@ -582,8 +630,8 @@ const updateCounterAndOptions = function (event) {
 					return rowObjects;
 				})
 				.then(rowObjects => {
-					db.collection('dailyChecking').doc(userUID).update({
-						rowObjects: rowObjects,
+					db.collection('dailyChecking').doc('template').update({
+						templateItems: rowObjects,
 					});
 				})
 				.catch(error => {
@@ -595,36 +643,33 @@ const updateCounterAndOptions = function (event) {
 	}
 };
 
-//Added another eventlistener due to DOM Event delegation
-checkRows.addEventListener('click', updateCounterAndOptions);
-checkRows.addEventListener('keyup', updateCounterAndOptions);
-checkRows.addEventListener('keypress', updateCounterAndOptions);
-checkRows.addEventListener('mouseover', updateCounterAndOptions);
-checkRows.addEventListener('mouseout', updateCounterAndOptions);
+// Multiple eventlisteners due to DOM Event delegation
+templateRows.addEventListener('click', updateCounterAndOptions);
+templateRows.addEventListener('keyup', updateCounterAndOptions);
+templateRows.addEventListener('keypress', updateCounterAndOptions);
+templateRows.addEventListener('mouseover', updateCounterAndOptions);
+templateRows.addEventListener('mouseout', updateCounterAndOptions);
 
 // Clear contents of certain input elements whenever they are focus to improve UX
 const clearInputValues = function (event) {
 	if (
-		(event.target.classList.contains('platform-name') &&
-			event.target.id !== 'platform-0') ||
-		event.target.id === 'table-0' ||
-		(event.target.classList.contains('casino-name') &&
-			event.target.id !== 'casino-0')
+		event.target.classList.contains('platform-name') ||
+		event.target.classList.contains('casino-name')
 	) {
 		event.target.value = '';
 	}
 };
 
-//using focusin over focus because it bubbles through the checkRows,
+//using focusin over focus because it bubbles through the templateRows,
 //thus there is no need to assign multiple elements
-checkRows.addEventListener('focusin', clearInputValues);
+templateRows.addEventListener('focusin', clearInputValues);
 
 const moveRows = function (event) {
 	const removeAddedClassesAndTempRow = id => {
 		document.getElementById(id).classList.remove('move-rows-target-above');
 
 		// Solution to remove the added classes in cases of there being 10 rows, while some rows have an ID of 15 or 24,etc.
-		let iterations = 1;
+		let iterations = 0;
 		let rowsViewed = 0;
 		while (rowsViewed < tableRows.length) {
 			if (document.getElementById('row-' + iterations)) {
@@ -635,9 +680,6 @@ const moveRows = function (event) {
 			}
 			iterations++;
 		}
-
-		iterations = 1;
-		rowsViewed = 0;
 
 		if (document.getElementById('temp-row')) {
 			document.getElementById('temp-row').remove();
@@ -708,7 +750,6 @@ const moveRows = function (event) {
 		event.preventDefault();
 
 		let id = event.dataTransfer.getData('text');
-
 		event.target.before(document.getElementById(id));
 
 		removeAddedClassesAndTempRow(id);
@@ -758,25 +799,8 @@ themeToggle.onclick = function () {
 	}
 };
 
-menuToggleBtn.onclick = function () {
-	hiddenMenu.style.visibility =
-		hiddenMenu.style.visibility != 'visible' ? 'visible' : 'hidden';
-	menuToggleBtn.blur();
-};
-
 // Closing any option windows if the click is not related to the option window
 document.body.onclick = function () {
-	if (
-		hiddenMenu.style.visibility === 'visible' &&
-		event.target.id !== 'menu-toggle' &&
-		event.target.id !== 'hidden-menu' &&
-		event.target.id !== 'reset-button' &&
-		event.target.id !== 'sort-button' &&
-		event.target.id !== 'undo-button'
-	) {
-		hiddenMenu.style.visibility = 'hidden';
-	}
-
 	if (
 		!event.target.classList.contains('row-format') &&
 		!event.target.classList.contains('color-option') &&

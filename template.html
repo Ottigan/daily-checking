@@ -28,14 +28,14 @@
 					</div>
 					<ul class="nav-list">
 						<li>
-							<a id="dc" href="main.html">Daily Checking</a>
+							<a id="dc" href="main.html">Main</a>
 						</li>
-						<li><a id="tracking" href="db.html">Tracking DB</a></li>
+						<li><a id="tracking" href="db.html">Database</a></li>
 						<li class="current-location">
 							<a id="template" href="#">Template</a>
 						</li>
 						<li>
-							<a id="new-product" href="new.html">Add New</a>
+							<a id="new-product" href="new.html">Add</a>
 						</li>
 					</ul>
 				</div>
@@ -81,51 +81,25 @@
 			</nav>
 		</header>
 		<section class="dc-section">
-			<div id="checkrows" class="flex vertical jc-c js-c ai-fe">
+			<div id="templaterows" class="flex vertical jc-c js-c ai-fe">
 				<form id="main-row" action="" method="" class="flex jc-c ai-fe">
-					<div>
-						<label for="table-0">Game Table</label><br />
-						<input
-							id="table-0"
-							type="text"
-							name="table"
-							list="names"
-							class="inputElement table-name"
-							autocomplete="off"
-							pattern="[a-zA-Z0-9 /]+"
-						/>
-						<datalist id="names"> </datalist>
-					</div>
-					<span id="counter-0" class="counter">0</span>
-					<input
-						id="target-0"
-						type="number"
-						class="target highlight-this"
-						value="1000"
-						maxlength="4"
-					/>
-					<div class="hidden-menu-container">
-						<div id="hidden-menu" class="flex ai-c jc-sb">
-							<button id="reset-button" type="button">Reset</button>
-							<button id="sort-button" type="button">Sort</button>
-							<button id="undo-button" type="button">Undo</button>
-						</div>
-					</div>
-					<button id="menu-toggle" type="button">Options</button>
-					<button id="0" class="submitButton" type="button">
-						Submit
+					<h2>Product</h2>
+					<datalist id="names"> </datalist>
+					<button id="sort-button" type="button">Sort</button>
+
+					<button id="save-button" class="save-button" type="button">
+						Save All
 					</button>
 				</form>
 				<div id="row-manipulator">
-					<button>Add</button>
-					<button>Remove</button>
-					<button class="save-button">Save All</button>
+					<button type="button">Add</button>
+					<button type="button">Remove</button>
 				</div>
 			</div>
 		</section>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-auth.js"></script>
 		<script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-firestore.js"></script>
-		<script src="js/current.js"></script>
+		<script src="js/template.js"></script>
 	</body>
 </html>

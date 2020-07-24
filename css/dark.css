@@ -12,7 +12,7 @@ body {
 	background-color: rgb(34, 34, 34);
 }
 
-@media screen and (min-width: 1690px) {
+@media (min-width: 1690px) {
 	nav {
 		position: relative;
 		top: 0px;
@@ -186,13 +186,20 @@ body {
 		width: 766px;
 	}
 
+	#templaterows {
+		position: relative;
+		width: auto;
+	}
+
 	#hidden-menu {
 		position: relative;
-		left: 248px;
+		left: 264px;
 		bottom: 40px;
 		visibility: hidden;
-		width: 136px;
-		height: 30px;
+		display: flex;
+		flex-wrap: wrap;
+		width: 102px;
+		height: 54px;
 		padding: 3px;
 		border: 1px solid rgb(0, 0, 0);
 		border-radius: 3px;
@@ -208,6 +215,10 @@ body {
 		width: 200px;
 	}
 
+	.table-row .table-name {
+		width: 209px;
+	}
+
 	.container {
 		width: 1200px;
 	}
@@ -221,7 +232,7 @@ body {
 	}
 }
 
-@media screen and (max-width: 1689px) {
+@media (max-width: 1689px) {
 	nav {
 		position: relative;
 		top: 0px;
@@ -311,15 +322,17 @@ body {
 	}
 
 	.nav-list {
-		display: inline-flex;
+		height: 170px;
+		width: 200px;
+		padding-left: 20px;
+		display: flex;
 		flex-direction: column;
-		justify-content: space-around;
+		justify-content: space-evenly;
 		list-style: none;
 		position: absolute;
 		z-index: 1;
 		top: 59px;
 		left: -287px;
-		height: 150px;
 		background-color: rgb(20, 20, 20);
 		border: 1px solid var(--accent-color);
 		border-top: none;
@@ -440,13 +453,20 @@ body {
 		width: 751px;
 	}
 
+	#templaterows {
+		position: relative;
+		width: auto;
+	}
+
 	#hidden-menu {
 		position: relative;
-		left: 239px;
+		left: 256px;
 		bottom: 40px;
 		visibility: hidden;
-		width: 136px;
-		height: 30px;
+		display: flex;
+		flex-wrap: wrap;
+		width: 102px;
+		height: 54px;
 		padding: 3px;
 		border: 1px solid rgb(0, 0, 0);
 		border-radius: 3px;
@@ -460,6 +480,10 @@ body {
 		text-indent: 2px;
 		height: 20px;
 		width: 195px;
+	}
+
+	.table-row .table-name {
+		width: 204px;
 	}
 
 	.container {
@@ -547,16 +571,6 @@ form button:focus {
 	box-shadow: 0 0 2px 2px var(--accent-color);
 }
 
-#overlay {
-	position: fixed;
-	display: none;
-	top: 0;
-	background-color: rgba(0, 0, 0, 0.8);
-	height: 100%;
-	width: 100%;
-	z-index: 1;
-}
-
 #main-row input,
 #main-row button {
 	height: 35px;
@@ -566,9 +580,32 @@ form button:focus {
 	color: black !important;
 }
 
+#templaterows h2 {
+	height: 35px;
+	width: 195px;
+	padding-right: 6px;
+	font-family: 'Roboto', sans-serif;
+	color: white;
+	text-align: center;
+}
+
+#templaterows #sort-button {
+	width: 40px;
+	margin: 0 3px;
+}
+
+#templaterows #save-button {
+	width: 60px;
+	margin-left: 3px;
+}
+
 #counter-0,
 #target-0 {
 	display: none;
+}
+
+#templaterows #target-0 {
+	display: block;
 }
 
 .hidden-menu-container {
@@ -577,7 +614,7 @@ form button:focus {
 }
 
 #hidden-menu button {
-	width: 40px;
+	width: 45px;
 	height: 20px;
 	font-family: 'Roboto', sans-serif;
 	font-size: 12px;
@@ -695,8 +732,8 @@ form button:focus {
 	background-color: var(--accent-color);
 	box-shadow: inset 1px 0px 2px 0px black;
 	border: 1px solid black;
-	border-top-left-radius: 3px;
-	border-bottom-left-radius: 3px;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
 }
 
 .row-format:hover {
@@ -806,6 +843,30 @@ form button:focus {
 	font-weight: 600;
 }
 
+#templaterows form div:nth-last-of-type(2) {
+	padding: unset;
+	margin: unset;
+}
+
+#templaterows form div:nth-child(2) {
+	margin-right: 3px;
+}
+
+#templaterows input,
+#templaterows button {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 600;
+}
+
+#templaterows form div:nth-of-type(2) input,
+#checkrows .table-row .table-name {
+	padding-left: 9px;
+}
+
+#templaterows .target {
+	margin: 0 3px;
+}
+
 section form input[type='number'] {
 	text-indent: 2px;
 	font-size: 15px;
@@ -860,7 +921,10 @@ section form input[type='number'] {
 }
 
 .dc-section #checkrows .highlighted-row {
-	border: 1px solid var(--accent-color);
+	box-shadow: 0 0 2px 2px var(--accent-color);
+}
+
+.dc-section #templaterows .highlighted-row {
 	box-shadow: 0 0 2px 2px var(--accent-color);
 }
 
@@ -869,6 +933,13 @@ section form input[type='number'] {
 #checkrows form:nth-child(odd) button,
 tbody tr:nth-child(even) td,
 .l-decoration:nth-child(even) {
+	background-color: rgb(22, 22, 22);
+	color: rgb(170, 170, 170);
+	border: 1px solid rgb(63, 63, 63);
+}
+
+#templaterows form:nth-child(odd) input,
+#templaterows form:nth-child(odd) button {
 	background-color: rgb(110, 110, 110);
 	color: rgb(0, 0, 0);
 	border: 1px solid rgb(59, 59, 59);
@@ -879,6 +950,13 @@ tbody tr:nth-child(even) td,
 #checkrows form:nth-child(even) button,
 tbody tr:nth-child(odd) td,
 .l-decoration:nth-child(odd) {
+	background-color: rgb(110, 110, 110);
+	color: rgb(0, 0, 0);
+	border: 1px solid rgb(59, 59, 59);
+}
+
+#templaterows form:nth-child(even) input,
+#templaterows form:nth-child(even) button {
 	background-color: rgb(22, 22, 22);
 	color: rgb(170, 170, 170);
 	border: 1px solid rgb(63, 63, 63);
