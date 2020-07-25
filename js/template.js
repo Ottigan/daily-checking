@@ -49,11 +49,17 @@ const styleSheet = document.getElementById('style'),
 				return rowObjects;
 			})
 			.then(rowObjects => {
-				db.collection('dailyChecking').doc('template').update({
-					templateItems: rowObjects,
-				});
+				db.collection('dailyChecking')
+					.doc('template')
+					.update({
+						templateItems: rowObjects,
+					})
+					.then(() => {
+						newToaster('Updated', 'success');
+					});
 			})
 			.catch(error => {
+				newToaster('Error', 'fail');
 				console.error(error);
 			});
 	};

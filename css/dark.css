@@ -518,8 +518,37 @@ header {
 
 .dc-section {
 	display: flex;
+	justify-content: center;
+}
+
+.alarm-container {
+	height: min-content;
+	width: 300px;
+	margin-left: 20px;
+	display: flex;
 	flex-direction: column;
 	align-items: center;
+	border: 2px inset;
+	background-color: white;
+}
+
+.alarm-container h2 {
+	height: 35px;
+	width: 100%;
+	color: rgb(0, 0, 0);
+	font-family: 'Roboto', sans-serif;
+	text-align: center;
+}
+
+.alarm-list {
+	display: flex;
+	justify-content: center;
+}
+
+.alarm-container img {
+	height: auto;
+	width: 70%;
+	margin-bottom: 10px;
 }
 
 .long-shift-container {
