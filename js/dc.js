@@ -280,7 +280,7 @@ setInterval(function () {
 	}
 
 	fetchLatestCheckTimestamps();
-}, 60000);
+}, 300000);
 
 firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 	if (dailyCheckingUser) {
