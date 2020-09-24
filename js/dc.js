@@ -167,9 +167,15 @@ const styleSheet = document.getElementById('style'),
 
 			if (x >= y) {
 				allCounters[i].classList.add('valid');
+				allCounters[i].classList.remove('in-progress');
+				allCounters[i].classList.remove('invalid');
+			} else if (x > 0 && x < y) {
+				allCounters[i].classList.add('in-progress');
+				allCounters[i].classList.remove('valid');
 				allCounters[i].classList.remove('invalid');
 			} else {
 				allCounters[i].classList.add('invalid');
+				allCounters[i].classList.remove('in-progress');
 				allCounters[i].classList.remove('valid');
 			}
 		}

@@ -1242,7 +1242,12 @@ tbody tr td:last-child {
 }
 
 .invalid {
-	background-color: rgba(189, 45, 45, 0.979) !important;
+	background-color: rgb(189, 45, 45) !important;
+	color: rgb(255, 255, 255) !important;
+}
+
+.in-progress {
+	background-color: rgb(245, 193, 27) !important;
 	color: rgb(255, 255, 255) !important;
 }
 

@@ -1238,6 +1238,11 @@ tbody tr td:last-child {
 	background-color: rgb(151, 0, 0) !important;
 }
 
+.in-progress {
+	background-color: rgb(245, 193, 27) !important;
+	color: rgb(255, 255, 255) !important;
+}
+
 .valid {
 	background-color: rgb(1, 133, 1) !important;
 	box-shadow: 0 0 2px 2px var(--accent-color) !important;
