@@ -924,19 +924,12 @@ const updateCounterAndOptions = function (event) {
 							}),
 						})
 						.then(() => {
-							let x = Number.parseInt(counter.innerHTML),
-								y = Number.parseInt(goal.value);
+							let x = Number.parseInt(counter.innerHTML);
 							x++;
 
 							counter.innerHTML = x;
 
-							if (x >= y) {
-								counter.classList.add('valid');
-								counter.classList.remove('invalid');
-							} else {
-								counter.classList.add('invalid');
-								counter.classList.remove('valid');
-							}
+							compareCountersToTargets();
 
 							// To ignore MAIN row, which does not have a timestamp field
 							if (timestamp) {
@@ -1247,23 +1240,10 @@ const updateCounterAndOptions = function (event) {
 							let matchedCounter = document.getElementById(
 								`counter-${lastTracked.id}`
 							);
-							let matchedCountersTarget = document.getElementById(
-								`target-${lastTracked.id}`
-							);
 
 							matchedCounter.innerHTML--;
 
-							if (
-								Number.parseInt(matchedCounter.innerHTML) >=
-								Number.parseInt(matchedCountersTarget.value)
-							) {
-								matchedCounter.classList.add('valid');
-								matchedCounter.classList.remove('invalid');
-							} else {
-								matchedCounter.classList.add('invalid');
-								matchedCounter.classList.remove('valid');
-							}
-
+							compareCountersToTargets();
 							fetchLatestCheckTimestamps();
 							newToaster('Removed', 'success');
 							target.removeAttribute('disabled');
