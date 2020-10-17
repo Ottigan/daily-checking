@@ -269,24 +269,30 @@ setInterval(function () {
 		}, 1000);
 	};
 
-	if (hours === 10 && minutes === 0 && day > 0 && day < 6) {
+	if (hours === 10 && minutes === 0 && seconds === 0 && day > 0 && day < 6) {
 		alarmAlert('Eww, you are working MNG?! Pff, go check Lounge 4!');
-	} else if (hours === 15 && minutes === 0) {
+	} else if (hours === 15 && minutes === 0 && seconds === 0) {
 		alarmAlert('Go get some fancy chocolate from Zurich!');
-	} else if (hours === 16 && minutes === 0 && day > 0 && day < 6) {
+	} else if (
+		hours === 16 &&
+		minutes === 0 &&
+		seconds === 0 &&
+		day > 0 &&
+		day < 6
+	) {
 		alarmAlert('Time to check the table with a weird wallpaper!');
-	} else if (hours === 17 && minutes === 0) {
+	} else if (hours === 17 && minutes === 0 && seconds === 0) {
 		alarmAlert('Have you ever had an authentic Italian Pizza?');
-	} else if (hours === 18 && minutes === 0) {
+	} else if (hours === 18 && minutes === 0 && seconds === 0) {
 		alarmAlert('Reapeat after me: "FUUUUUfffikon!"');
-	} else if (hours === 19 && minutes === 0) {
+	} else if (hours === 19 && minutes === 0 && seconds === 0) {
 		alarmAlert('It is time to spy on the Britishes!');
-	} else if (hours === 22 && minutes === 0) {
+	} else if (hours === 22 && minutes === 0 && seconds === 0) {
 		alarmAlert('2 Tables 1 QA...');
 	}
+}, 1000);
 
-	fetchLatestCheckTimestamps();
-}, 300000);
+setInterval(fetchLatestCheckTimestamps(), 300000);
 
 firebase.auth().onAuthStateChanged(function (dailyCheckingUser) {
 	if (dailyCheckingUser) {
