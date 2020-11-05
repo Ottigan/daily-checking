@@ -74,7 +74,7 @@ const styleSheet = document.getElementById('style'),
 						dbTracking.forEach(object => {
 							// using toISOString because the format is the easiest to adapt for Excel
 							let timeISO = new Date(
-								(object.when.seconds + 10800) * 1000
+								(object.when.seconds + 7200) * 1000
 							).toISOString();
 							let date = timeISO.substring(0, timeISO.indexOf('T'));
 							let time = timeISO.substring(
