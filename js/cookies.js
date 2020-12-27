@@ -14,3 +14,4 @@ window.onload = function () {
 		themeSwitch.checked = true;
 	}
 };
+ 

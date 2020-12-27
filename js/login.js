@@ -19,7 +19,7 @@ const auth = firebase.auth(),
 	password = document.getElementById('password'),
 	loginBtn = document.getElementById('login-btn'),
 	resetBtn = document.getElementById('reset-password-btn');
-
+ 
 // Add login event
 loginForm.addEventListener('submit', event => {
 	event.preventDefault();
