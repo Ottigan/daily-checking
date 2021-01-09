@@ -1069,6 +1069,7 @@ const updateCounterAndOptions = function (event) {
 						// then push it into newRowObjects array
 						if (item.name === rowObjects[i].name) {
 							rowObjects[i].counter = 0;
+							rowObjects[i].target = item.target;
 							rowObjects[i].id = id;
 							id++;
 							newRowObjects.push(rowObjects[i]);
